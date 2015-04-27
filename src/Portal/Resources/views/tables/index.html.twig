@@ -1,0 +1,14 @@
+{% extends "layout.html.twig" %}
+
+{% block content %}
+<h1>Tables</h1>
+
+
+{% for table in tables %}
+    <h4>
+        <i class="fa fa-table"></i>
+        <a href="/dw/{{ datawarehouse.getCode() }}/tables/{{ table.name}}">{{ table.name}}</a>
+    </h4>
+{% endfor %}
+
+{% endblock %}

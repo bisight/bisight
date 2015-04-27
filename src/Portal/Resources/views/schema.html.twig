@@ -1,0 +1,59 @@
+{% extends "layout.html.twig" %}
+
+{% block content %}
+    <h1><i class="fa fa-paint-brush"></i> Schema "{{ schema.getName() }}"</h1>
+    <ul>
+        <li>Name: {{ schema.getName() }}</li>
+    </ul>
+    
+    {% for cube in schema.getCubes() %}
+    <h3><i class="fa fa-cube"></i> Cube "{{ cube.getName() }}"</h3>
+    <div style="margin-left: 30px; margin-top: 20px; margin-bottom: 50px;">
+        <div class="panel panel-default"><div class="panel-body"><i>{{ cube.getDescription() }}</i></div></div>
+        <ul class="list-unstyled">
+            <li>Tablename: {{ cube.getTableName() }}</li>
+        </ul>
+        
+        {% for dimension in cube.getDimensions() %}
+            <h4><i class="fa fa-arrows-alt"></i> Dimension "{{ dimension.getName() }}"</h4>
+            <ul>
+                <li>Foreign key: {{ dimension.getForeignKey() }}</li>
+            </ul>
+            
+            
+            <div style="margin-left: 30px; margin-top: 20px; margin-bottom: 50px;">
+                {% for hierarchy in dimension.getHierarchies() %}
+                    <h5><i class="fa fa-bars"></i> Hierarchy "{{ hierarchy.getName() }}"</h5>
+                    <ul>
+                        <li>Table name: {{ hierarchy.getTableName() }}</li>
+                    </ul>
+                    <div style="margin-left: 30px; margin-top: 20px; margin-bottom: 50px;">
+
+                    {% for level in hierarchy.getLevels() %}
+                        <h6><i class="fa fa-minus"></i> Level "{{ level.getName() }}"</h6>
+                        <ul>
+                            <li>Column: {{ level.getColumn() }}</li>
+                        </ul>
+                    {% endfor %}
+                    </div>
+
+                {% endfor %}
+            </div>
+
+        {% endfor %}
+        
+        {% for measure in cube.getMeasures() %}
+            <h4><i class="fa fa-tachometer"></i> Measure "{{ measure.getName() }}"</h4>
+            <ul>
+                <li>Column: {{ measure.getColumn() }}</li>
+                <li>Aggregator: {{ measure.getAggregator() }}</li>
+                <li>Data type: {{ measure.getDataType() }}</li>
+                <li>Format string: {{ measure.getFormatString() }}</li>
+            </ul>
+
+        {% endfor %}
+    </div>
+        
+    {% endfor %}
+
+{% endblock %}

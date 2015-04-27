@@ -1,0 +1,29 @@
+{
+    "name": "bisight/bisight",
+    "description": "BiSight: Business Intelligence Server",
+    "homepage": "http://www.github.com/bisight/bisight",
+    "keywords": ["business intelligence", "bisight", "portal", "olap", "cube"],
+    "type": "application",
+    "authors": [
+        {
+            "name": "Joost Faassen",
+            "email": "j.faassen@linkorb.com",
+            "role": "Development"
+        }
+    ],
+    "require": {
+        "symfony/console": "~2.5",
+        "symfony/config": "~2.6",
+        "silex/silex": "2.0.*@dev",
+        "twig/twig": "1.16.*@dev",
+        "symfony/twig-bridge": "~2.4",
+        "symfony/security": "~2.3",
+        "doctrine/dbal": "~2.5",
+        "linkorb/database-manager": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "BiSight\\": "src/"
+        }
+    }
+}

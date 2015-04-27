@@ -1,0 +1,19 @@
+index:
+    pattern: /
+    defaults:  { _controller: BiSight\Portal\Controller\PortalController::indexAction }
+
+datawarehouse:
+    pattern: /dw/{dwcode}
+    defaults:  { _controller: BiSight\Portal\Controller\PortalController::viewDataWarehouseAction }
+
+table_index:
+    pattern: /dw/{dwcode}/tables
+    defaults:  { _controller: BiSight\Portal\Controller\PortalController::tableIndexAction }
+
+table_view:
+    pattern: /dw/{dwcode}/tables/{tablename}
+    defaults:  { _controller: BiSight\Portal\Controller\PortalController::tableViewAction }
+
+schema_view:
+    pattern: /dw/{dwcode}/schema
+    defaults:  { _controller: BiSight\Portal\Controller\PortalController::viewSchemaAction }

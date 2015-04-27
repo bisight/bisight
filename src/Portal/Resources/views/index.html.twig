@@ -1,0 +1,52 @@
+{% extends "layout.html.twig" %}
+
+{% block content %}
+    <style>
+        html {
+            height: 100%;
+        }
+        body {
+            background-image: url("http://cdn.business2community.com/wp-content/uploads/2014/08/Business-Intelligence.jpg");
+            padding-bottom: 100px;
+            xbackground-position: fixed;
+            background-size: cover;
+            background-repeat: no-repeat;
+            xmin-height: 1000px;
+            
+
+        }
+        .content {
+            background-color: rgba(255,255,255,0.9);
+            border-radius: 10px;
+            border: 2px solid #404040;
+            padding-bottom: 50px;
+            text-align: center;
+        }
+    </style>
+    
+    <div class="row">
+        <div class="col-md-3">
+        </div>
+        <div class="col-md-6 content">
+            <div class="jumbotron" style="background: none;" xstyle="background-image: url('http://www.infor.com/design2012/images/primages/10x-abstract_blue-NewsFeed_614x261px.jpg')">
+                <h1><span class="accent">BI</span>Sight <small class="accent">Portal</small></h1>
+                <p>Business Intelligence Platform</p>
+            </div>
+            
+            <h3>Data Warehouses</h3>
+            <ul class="list-unstyled">
+                {% for datawarehouse in datawarehouses %}
+                <li><a href="/dw/{{ datawarehouse.getCode() }}">{{ datawarehouse.getName() }}</a></li>
+                {% endfor %}
+            </ul>
+
+            <h3>Server configuration</h3>
+            <ul class="list-unstyled">
+                <li>Name: {{ name }}</li>
+            </ul>
+
+
+        </div>
+        <div class="col-md-3"></div>
+    </div>
+{% endblock %}
