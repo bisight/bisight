@@ -15,5 +15,9 @@ table_view:
     defaults:  { _controller: BiSight\Portal\Controller\PortalController::tableViewAction }
 
 schema_view:
-    pattern: /dw/{dwcode}/schema
-    defaults:  { _controller: BiSight\Portal\Controller\PortalController::viewSchemaAction }
+    pattern: /dw/{dwcode}/olapschema
+    defaults:  { _controller: BiSight\Portal\Controller\PortalController::viewOlapSchemaAction }
+
+datasource_view:
+    pattern: /dw/{dwcode}/datasource/{dscode}
+    defaults:  { _controller: BiSight\Portal\Controller\PortalController::viewDataSourceAction }
