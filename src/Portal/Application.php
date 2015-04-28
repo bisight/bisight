@@ -13,9 +13,9 @@ use Symfony\Component\Routing\Loader\YamlFileLoader;
 use Symfony\Component\Yaml\Parser as YamlParser;
 use Symfony\Component\Security\Core\Encoder\PlaintextPasswordEncoder;
 use LinkORB\Component\DatabaseManager\DatabaseManager;
-use BiSight\Common\Model\DataWarehouse;
-use BiSight\Engine\Repository\StaticSchemaRepository;
-use BiSight\Engine\Repository\ArrayDataWarehouseRepository;
+use BiSight\DataWarehouse\Model\DataWarehouse;
+use BiSight\DataWarehouse\Repository\ArrayDataWarehouseRepository;
+use BiSight\Olap\Repository\StaticSchemaRepository;
 
 use RuntimeException;
 
@@ -44,11 +44,6 @@ class Application extends SilexApplication
         $this->register(new FormServiceProvider());
         */
         $this->register(new RoutingServiceProvider());
-        
-        $dm = new DatabaseManager();
-        //$this['bisight.portal.pdo'] = $dm->getPdo('bisight');
-        $this['bisight.warehouse.pdo'] = $dm->getPdo('bi_l_objettrouve');
-
     }
 
     private $dataWarehouseRepository;
@@ -64,10 +59,6 @@ class Application extends SilexApplication
         $this->dataWarehouseRepository = new ArrayDataWarehouseRepository($config['datawarehouses']);
         
         $this->schemaRepository = new StaticSchemaRepository();
-        
-        $this['bisight.repository.schema'] = $schemaRepository;
-        
-        $dataWarehouseRepository = new ArrayDataWarehouseRepository($config['datawarehouses']);
         
         $this['bisight.baseurl'] = 'test';
         
