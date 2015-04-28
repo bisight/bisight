@@ -1,6 +1,6 @@
 <?php
 
-namespace BiSight\Common\Model;
+namespace BiSight\Olap\Model;
 
 class Schema
 {

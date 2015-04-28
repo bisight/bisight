@@ -1,6 +1,6 @@
 <?php
 
-namespace BiSight\Common;
+namespace BiSight\Olap;
 
 interface SchemaRepositoryInterface
 {

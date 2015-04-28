@@ -6,6 +6,15 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use LinkORB\Component\DatabaseManager\DatabaseManager;
 use BiSight\Portal\Model\Perspective;
+use BiSight\DataSource\Model\DataSource;
+use BiSight\DataSource\Model\Join;
+use BiSight\DataSource\Model\Filter;
+use BiSight\DataSource\Model\Group;
+use BiSight\DataSource\Model\Order;
+use BiSight\DataSource\Model\Query as DataSourceQuery;
+use BiSight\DataWarehouse\Model\Column;
+use BiSight\DataWarehouse\Model\ResultSetInterface;
+
 use PDO;
 
 class PortalController
@@ -41,20 +50,9 @@ class PortalController
         $dm = new DatabaseManager();
         $pdo = $dm->getPdo($dbname);
 
-        
-        $sql = "SHOW TABLES";
-        $stmt = $pdo->prepare($sql);
-        $res = $stmt->execute();
+        $tables = $dw->getTables();
 
-        $tables = array();
-        
-        while ($row = $stmt->fetch(PDO::FETCH_NUM)) {
-            //print_r($row);
-            $tables[]['name'] = $row[0];
-        }
-        //exit("BOOM");
         $data = array();
-        //$tables[]['name'] = 'cool';
         $data['tables'] = $tables;
         
         return new Response($app['twig']->render(
@@ -63,50 +61,72 @@ class PortalController
         ));
     }
     
-    public function tableViewAction(Application $app, Request $request, $dwcode, $tablename)
+    private function getResultSetHtml(ResultSetInterface $res)
     {
-        $dwrepo = $app->getDataWarehouseRepository();
-        $dw = $dwrepo->getByCode($dwcode);
-        $dbname = $dw->getConfig('dbname');
-        $dm = new DatabaseManager();
-        $pdo = $dm->getPdo($dbname);
-        
-        $data = array();
-        /*
-        $perspective = new Perspective();
-        $perspective->setDisplayname("My custom perspective");
-        $perspective->setTablename($tablename);
-        $data['perspective'] = $perspective;
-        */
-        $data['tablename'] = $tablename;
-        
-        $sql = "SELECT * FROM " . $tablename;
-        $stmt = $pdo->prepare($sql);
-        $res = $stmt->execute();
+        $columns = $res->getColumns();
         
         $i = 0;
         $o = '';
         $o .= '<div class="table-responsive">';
         $o .= '<table class="table table-striped table-hover table-condensed">';
         $o .= '<thead><tr>';
-        while ($i < $stmt->columnCount()) {
-            $meta = $stmt->getColumnMeta($i);
-            $o .= "<th>" . $meta['name'] . "</th>";
+        foreach ($columns as $column) {
+            $o .= "<th";
+            if ($column->getType() == 'money') {
+                $o .= " style=\"text-align: right\"";
+            }
+            $o .= ">" . $column->getLabel() . "</th>";
             $i++;
         }
         $o .= '</tr></thead>';
-        
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        while ($row = $res->getRow()) {
             $o .= '<tr>';
+            $i = 0;
             foreach ($row as $key => $value) {
-                $o .= "<td>" . $value . "</td>";
+                $column = null;
+                foreach ($columns as $c) {
+                    if ($c->getAlias() == $key) {
+                        $column = $c;
+                    }
+                }
+
+                $o .= "<td";
+                
+                if ($column->getType() == 'money') {
+                    $o .= " style=\"text-align: right\"";
+                }
+
+                $o .= ">";
+
+                if ($column->getType() == 'money') {
+                    $o .= "&euro; ";
+                }
+
+                $o .= $value;
+                $o .= "</td>";
+                $i++;
             }
             $o .= '</tr>' . "\n";
         }
         
         $o .= '</table>';
         $o .= '</div>';
-        $data['tablehtml'] = $o;
+        return $o;
+    }
+    
+    public function tableViewAction(Application $app, Request $request, $dwcode, $tablename)
+    {
+        $dwrepo = $app->getDataWarehouseRepository();
+        $dw = $dwrepo->getByCode($dwcode);
+        $storage = $dw->getStorage();
+        
+        $data = array();
+        $data['tablename'] = $tablename;
+        
+        $res = $storage->getResultSetByTablename($tablename);
+        
+        
+        $data['tablehtml'] = $this->getResultSetHtml($res);
         
         return new Response($app['twig']->render(
             'tables/view.html.twig',
@@ -114,7 +134,7 @@ class PortalController
         ));
     }
     
-    public function viewSchemaAction(Application $app, Request $request, $dwcode)
+    public function viewOlapSchemaAction(Application $app, Request $request, $dwcode)
     {
         $dwrepo = $app->getDataWarehouseRepository();
         $dw = $dwrepo->getByCode($dwcode);
@@ -125,8 +145,91 @@ class PortalController
         $data = array('schema' => $schema);
         
         return new Response($app['twig']->render(
-            'schema.html.twig',
+            'olapschema.html.twig',
             $data
         ));
+    }
+    
+    public function viewDataSourceAction(Application $app, Request $request, $dwcode, $dscode)
+    {
+        $dwrepo = $app->getDataWarehouseRepository();
+        $dw = $dwrepo->getByCode($dwcode);
+        $storage = $dw->getStorage();
+
+        $ds = new DataSource();
+        $ds->setName("Sales");
+        $ds->setTableName('fact_sales');
+        $ds->setDescription('All the sales');
+        $ds->setAlias('s');
+        
+        $j = new Join();
+        $j->setTableName('dim_customer');
+        $j->setColumnName('id');
+        $j->setAlias('c');
+        $j->setForeignKey('customer_id');
+        $ds->addJoin($j);
+        
+        $j = new Join();
+        $j->setTableName('dim_product');
+        $j->setColumnName('id');
+        $j->setAlias('p');
+        $j->setForeignKey('product_id');
+        $ds->addJoin($j);
+        
+
+
+    
+
+        $c = new Column();
+        $c->setName('c.fullname');
+        $c->setLabel('Customer name');
+        $c->setDescription("This is the name of the customer, dawg");
+        $c->setType('string');
+        $c->setAggregator('');
+        $ds->addColumn($c);
+        
+        $g = new Group($c);
+        
+        $c = new Column();
+        $c->setName('p.name');
+        $c->setLabel('Product name');
+        $c->setDescription("This is the name of the product, dawg");
+        $c->setType('string');
+        $c->setAggregator('');
+        $ds->addColumn($c);
+        
+        
+        $c = new Column();
+        $c->setName('s.price');
+        $c->setLabel('Price');
+        $c->setDescription("This is the price, dawg");
+        $c->setType('money');
+        $c->setAggregator('sum');
+        $ds->addColumn($c);
+        
+        $o = new Order($c);
+        $o->setReverse();
+        
+        $q = new DataSourceQuery($ds);
+        $q->addColumnName('c.fullname')->addColumnName('p.name')->addColumnName('s.price');
+        $q->addGroup($g);
+        $q->addOrder($o);
+        //$q->setLimit(10);
+        $q->setOffset(0);
+
+        //print_r($q);
+        
+        $res = $storage->dataSourceQuery($q);
+        //print_r($res);
+        
+        $html = $this->getResultSetHtml($res);
+        $data['tablename'] = 'x';
+        $data['tablehtml'] = $html;
+        
+        return new Response($app['twig']->render(
+            'tables/view.html.twig',
+            $data
+        ));
+        
     }
 }
