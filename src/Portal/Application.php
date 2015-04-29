@@ -83,14 +83,10 @@ class Application extends SilexApplication
 
     private function configureSecurity()
     {
-        return;
         $this->register(new SilexSecurityServiceProvider(), array());
 
-        if ($security['encoder']) {
-            $this['security.encoder.digest'] = new PlaintextPasswordEncoder(true);
-        }
+        $this['security.encoder.digest'] = new PlaintextPasswordEncoder(true);
 
-        /*
         $this['security.firewalls'] = array(
             'default' => array(
                 'stateless' => true,
@@ -99,10 +95,9 @@ class Application extends SilexApplication
                 'users' => $this->getUserRepository(),
             ),
         );
-        */
     }
 
-    private function getUserSecurityProvider()
+    private function getUserRepository()
     {
         $dbmanager = new DatabaseManager();
         $pdo = $dbmanager->getPdo('bisight');
