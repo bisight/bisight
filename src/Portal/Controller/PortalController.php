@@ -176,10 +176,14 @@ class PortalController
         $j->setForeignKey('product_id');
         $ds->addJoin($j);
         
-
-
-    
-
+        $j = new Join();
+        $j->setTableName('dim_date');
+        $j->setColumnName('date');
+        $j->setAlias('d');
+        $j->setType('LEFT');
+        $j->setForeignKey('order_date');
+        $ds->addJoin($j);
+        
         $c = new Column();
         $c->setName('c.fullname');
         $c->setLabel('Customer name');
@@ -188,7 +192,6 @@ class PortalController
         $c->setAggregator('');
         $ds->addColumn($c);
         
-        $g = new Group($c);
         
         $c = new Column();
         $c->setName('p.name');
@@ -206,6 +209,17 @@ class PortalController
         $c->setType('money');
         $c->setAggregator('sum');
         $ds->addColumn($c);
+        
+        $c = new Column();
+        $c->setName('d.weekdayname');
+        $c->setLabel('Day');
+        $c->setDescription("This is the day, dawg");
+        $c->setType('string');
+        $daycolumn = $c;
+        $ds->addColumn($c);
+        
+        $g = new Group($daycolumn);
+
         
         $o = new Order($c);
         $o->setReverse();
