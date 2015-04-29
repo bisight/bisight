@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema>
+
+    <table name="user">
+        <column name="username" type="varchar(32)" />
+        <column name="passwordhash" type="varchar(128)" />
+        <column name="displayname" type="varchar(64)" />
+        <column name="email" type="varchar(64)" />
+        <column name="roles" type="text" />
+    </table>
+    
+</schema>
