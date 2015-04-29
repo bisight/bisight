@@ -36,7 +36,7 @@
             <h3>Data Warehouses</h3>
             <ul class="list-unstyled">
                 {% for datawarehouse in datawarehouses %}
-                <li><a href="/dw/{{ datawarehouse.getCode() }}">{{ datawarehouse.getName() }}</a></li>
+                <li><a href="{{ path("datawarehouse", { dwcode: datawarehouse.getCode() })}}">{{ datawarehouse.getName() }}</a></li>
                 {% endfor %}
             </ul>
 

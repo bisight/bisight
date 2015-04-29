@@ -60,7 +60,7 @@ class Application extends SilexApplication
         
         $this->schemaRepository = new StaticSchemaRepository();
         
-        $this['bisight.baseurl'] = 'test';
+        $this['bisight.baseurl'] = $config['baseurl'];
         
         
     }
