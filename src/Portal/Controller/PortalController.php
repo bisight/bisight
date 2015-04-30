@@ -235,6 +235,20 @@ class PortalController
         
     }
     
+    private function getHtmlWidget(Parameter $parameter, $value)
+    {
+        $o = '<input ';
+        $o .= ' required="required"';
+        $o .= ' class="form-control"';
+        $o .= ' type="date"';
+        $o .= ' name="PARAMETER_' . $parameter->getName() . '"';
+        
+        $htmlvalue = substr($value, 0, 4) . '-' . substr($value, 4, 2) . '-' . substr($value, 6, 2);
+
+        $o .= ' value="' . $htmlvalue . '"/>';
+        
+        return $o;
+    }
     
     public function viewReportAction(Application $app, Request $request, $dwcode, $reportname)
     {
@@ -248,7 +262,7 @@ class PortalController
         $reportloader = new XmlDataSetReportLoader($dsrepo);
         
         $report = $reportloader->loadFile($filename);
-        
+        $htmlwidgets = array();
         $values = array();
         foreach ($report->getParameters() as $parameter) {
             $name = $parameter->getName();
@@ -256,12 +270,12 @@ class PortalController
             if ($request->request->has('PARAMETER_' . $name)) {
                 $value = $request->request->get('PARAMETER_' . $name);
             }
-            $htmlvalue = $value;
             if ($parameter->getType()=='date') {
                 $value = str_replace('-', '', $value);
-                $htmlvalue = substr($value, 0, 4) . '-' . substr($value, 4,2)  . '-' . substr($value, 6,2);
             }
-            $htmlvalues[$name] = $htmlvalue;
+            
+            $html = $this->getHtmlWidget($parameter, $value);
+            $htmlwidgets[$name] = $html;
             $values[$name] = $value;
         }
 
@@ -275,7 +289,7 @@ class PortalController
         $html = $this->getResultSetHtml($res);
         $data['tablehtml'] = $html;
         $data['report'] =  $report;
-        $data['htmlvalues'] =  $htmlvalues;
+        $data['htmlwidgets'] = $htmlwidgets;
         return new Response($app['twig']->render(
             'report/view.html.twig',
             $data

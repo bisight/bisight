@@ -9,12 +9,7 @@
             {% for parameter in report.getParameters() %}
                 <div class="form-group">
                     <label>{{ parameter.getLabel() }} ({{ parameter.getName() }})<br /></label>
-                    <input
-                        required="required"
-                        class="form-control"
-                        type="date"
-                        name="PARAMETER_{{ parameter.getName() }}"
-                        value="{{ attribute(htmlvalues, parameter.getName()) }}"/>
+                    {{ attribute(htmlwidgets, parameter.getName())|raw }}
                     <span class="help-block">{{ parameter.getDescription() }}</span>
                 </div>
             {% endfor %}
