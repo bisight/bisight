@@ -1,0 +1,31 @@
+<datasource
+    tablename="fact_sales"
+    description="All sales">
+    
+    <filter name="summer15" column="p.season_name" condition="equals" value="bengh" />
+    
+    <join table="dim_order" alias="o" foreignkey="order_id" column="id" type="inner" />
+    
+    <column name="amount"
+        label="Amount"
+        description="The amount of items sold in this transaction"
+        aggregator="sum"
+        type="int"
+        />
+        
+    <column name="price"
+        type="money"
+        aggregator="sum"
+        />
+        
+    <column name="order_id"
+        foreignkey="dim_order.id"
+        />
+        
+    <column name="o.ref"
+        label="Reference"
+        description="The order reference"
+        type="string"
+        />
+        
+</datasource>
