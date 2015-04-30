@@ -21,3 +21,7 @@ olapschema_view:
 dataset_view:
     pattern: /dw/{dwcode}/dataset/{dscode}
     defaults:  { _controller: BiSight\Portal\Controller\PortalController::viewDataSetAction }
+
+report_view:
+    pattern: /dw/{dwcode}/report/{reportname}
+    defaults:  { _controller: BiSight\Portal\Controller\PortalController::viewReportAction }

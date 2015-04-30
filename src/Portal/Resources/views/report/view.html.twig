@@ -1,0 +1,9 @@
+{% extends "layout.html.twig" %}
+
+{% block content %}
+<h1><i class="fa fa-table"></i> Report "{{ report.getLabel() }}" ({{ report.getName() }})</h1>
+<p>{{ report.getDescription() }}</p>
+
+{{ tablehtml|raw }}
+
+{% endblock %}

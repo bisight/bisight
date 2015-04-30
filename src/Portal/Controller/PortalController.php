@@ -6,12 +6,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use LinkORB\Component\DatabaseManager\DatabaseManager;
 use BiSight\Common\Storage\ResultSetInterface;
+use BiSight\Common\Model\Parameter;
 use BiSight\DataSet\Model\DataSet;
 use BiSight\DataSet\Model\Join;
 use BiSight\DataSet\Model\Filter;
 use BiSight\DataSet\Model\Group;
 use BiSight\DataSet\Model\Order;
 use BiSight\DataSet\Model\Query as DataSetQuery;
+use BiSight\DataSet\Model\Report;
 use BiSight\DataWarehouse\Model\Column;
 use BiSight\DataSet\Loader\XmlLoader as XmlDataSetLoader;
 
@@ -179,11 +181,60 @@ class PortalController
         //print_r($res);
         
         $html = $this->getResultSetHtml($res);
-        $data['tablename'] = 'x';
         $data['tablehtml'] = $html;
         $data['dataset'] =  $ds;
         return new Response($app['twig']->render(
             'dataset/view.html.twig',
+            $data
+        ));
+        
+    }
+    
+    
+    public function viewReportAction(Application $app, Request $request, $dwcode, $reportname)
+    {
+        $dwrepo = $app->getDataWarehouseRepository();
+        $dw = $dwrepo->getByCode($dwcode);
+        $storage = $dw->getStorage();
+
+        $filename = __DIR__ . '/../../../example/dataset/sales.xml';
+        $loader = new XmlDataSetLoader();
+        $ds = $loader->loadFile($filename);
+        
+        $report = new Report($ds);
+        $report->setName("salesreport");
+        $report->setLabel("Sales report");
+        $report->setDescription("This is the sales report description");
+        
+        $c = $ds->getColumn('c.fullname');
+        $report->addColumn($c);
+
+        $c = $ds->getColumn('p.name');
+        $report->addColumn($c);
+
+        $c = $ds->getColumn('s.price');
+        $report->addColumn($c);
+        
+        $c = $ds->getColumn('d.weekday');
+        $g = new Group($c);
+        $report->addGroup($g);
+
+        $c = $ds->getColumn('s.price');
+        $o = new Order($c);
+        $o->setReverse();
+        $report->addOrder($o);
+
+        $parameters = array();
+        $q = $report->getQuery($parameters);
+
+        //print_r($q); exit('yo');
+        $res = $storage->dataSetQuery($q);
+        
+        $html = $this->getResultSetHtml($res);
+        $data['tablehtml'] = $html;
+        $data['report'] =  $report;
+        return new Response($app['twig']->render(
+            'report/view.html.twig',
             $data
         ));
         
