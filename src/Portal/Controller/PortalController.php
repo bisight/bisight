@@ -14,6 +14,7 @@ use BiSight\DataSource\Model\Order;
 use BiSight\DataSource\Model\Query as DataSourceQuery;
 use BiSight\DataWarehouse\Model\Column;
 use BiSight\DataWarehouse\Model\ResultSetInterface;
+use BiSight\DataSource\Loader\XmlLoader as XmlDataSourceLoader;
 
 use PDO;
 
@@ -156,82 +157,24 @@ class PortalController
         $dw = $dwrepo->getByCode($dwcode);
         $storage = $dw->getStorage();
 
-        $ds = new DataSource();
-        $ds->setName("Sales");
-        $ds->setTableName('fact_sales');
-        $ds->setDescription('All the sales');
-        $ds->setAlias('s');
+        $filename = __DIR__ . '/../../../example/dataset/sales.xml';
+        $loader = new XmlDataSourceLoader();
+        $ds = $loader->loadFile($filename);
         
-        $j = new Join();
-        $j->setTableName('dim_customer');
-        $j->setColumnName('id');
-        $j->setAlias('c');
-        $j->setForeignKey('customer_id');
-        $ds->addJoin($j);
-        
-        $j = new Join();
-        $j->setTableName('dim_product');
-        $j->setColumnName('id');
-        $j->setAlias('p');
-        $j->setForeignKey('product_id');
-        $ds->addJoin($j);
-        
-        $j = new Join();
-        $j->setTableName('dim_date');
-        $j->setColumnName('date');
-        $j->setAlias('d');
-        $j->setType('LEFT');
-        $j->setForeignKey('order_date');
-        $ds->addJoin($j);
-        
-        $c = new Column();
-        $c->setName('c.fullname');
-        $c->setLabel('Customer name');
-        $c->setDescription("This is the name of the customer, dawg");
-        $c->setType('string');
-        $c->setAggregator('');
-        $ds->addColumn($c);
-        
-        
-        $c = new Column();
-        $c->setName('p.name');
-        $c->setLabel('Product name');
-        $c->setDescription("This is the name of the product, dawg");
-        $c->setType('string');
-        $c->setAggregator('');
-        $ds->addColumn($c);
-        
-        
-        $c = new Column();
-        $c->setName('s.price');
-        $c->setLabel('Price');
-        $c->setDescription("This is the price, dawg");
-        $c->setType('money');
-        $c->setAggregator('sum');
-        $ds->addColumn($c);
-        
-        $c = new Column();
-        $c->setName('d.weekdayname');
-        $c->setLabel('Day');
-        $c->setDescription("This is the day, dawg");
-        $c->setType('string');
-        $daycolumn = $c;
-        $ds->addColumn($c);
-        
-        $g = new Group($daycolumn);
+        $c = $ds->getColumn('d.weekday');
+        $g = new Group($c);
 
-        
+
+        $c = $ds->getColumn('s.price');
         $o = new Order($c);
         $o->setReverse();
         
         $q = new DataSourceQuery($ds);
-        $q->addColumnName('c.fullname')->addColumnName('p.name')->addColumnName('s.price');
+        $q->addColumnName('c.fullname')->addColumnName('p.name')->addColumnName('d.weekdayname')->addColumnName('s.price');
         $q->addGroup($g);
         $q->addOrder($o);
         //$q->setLimit(10);
         $q->setOffset(0);
-
-        //print_r($q);
         
         $res = $storage->dataSourceQuery($q);
         //print_r($res);
