@@ -5,7 +5,7 @@ namespace BiSight\DataSet\Loader;
 use BiSight\DataSet\Model\DataSet;
 use BiSight\DataSet\Model\Join;
 use BiSight\DataSet\Model\Filter;
-use BiSight\DataWarehouse\Model\Column;
+use BiSight\Common\Model\Column;
 use RuntimeException;
 use SimpleXMLElement;
 

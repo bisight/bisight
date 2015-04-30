@@ -2,7 +2,7 @@
 
 namespace BiSight\DataSet\Model;
 
-use BiSight\DataWarehouse\Model\Column;
+use BiSight\Common\Model\Column;
 
 class Group
 {
