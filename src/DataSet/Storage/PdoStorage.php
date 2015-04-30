@@ -17,7 +17,7 @@ class PdoStorage implements StorageInterface
         $this->pdo = $pdo;
     }
     
-    private function getQuerySql(Query $q)
+    private function getQuerySql(Query $q, $values)
     {
         $ds = $q->getDataSet();
         $groups = $q->getGroups();
@@ -63,10 +63,25 @@ class PdoStorage implements StorageInterface
             foreach ($filters as $filter) {
                 //print_r($filter);
                 $sql .= $filter->getColumn()->getName();
-                $sql .= $filter->getComparison();
-                $sql .= $filter->getValue();
-                $sql .= ' ';
+                switch ($filter->getComparison()) {
+                    case 'greater-than':
+                        $sql .= '>';
+                        break;
+                    case 'less-than':
+                        $sql .= '<';
+                        break;
+                    default:
+                        throw new RuntimeException("Unsupported comparison: " . $filter->getComparison());
+                        break;
+                }
+                $value = $filter->getValue();
+                foreach ($values as $k => $v) {
+                    $value = str_replace('{' . $k . '}', $v, $value);
+                }
+                $sql .= $value;
+                $sql .= ' AND ';
             }
+            $sql = substr($sql, 0, -5);
             $sql .= "\n";
         }
 
@@ -105,9 +120,9 @@ class PdoStorage implements StorageInterface
         return $sql;
     }
     
-    public function query(Query $q)
+    public function query(Query $q, $values = array())
     {
-        $sql = $this->getQuerySql($q);
+        $sql = $this->getQuerySql($q, $values);
         $stmt = $this->pdo->prepare($sql);
         $res = $stmt->execute();
         $result = new PdoResultSet($stmt, $q->getColumns());

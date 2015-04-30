@@ -3,6 +3,7 @@
 namespace BiSight\DataSet\Model;
 
 use BiSight\Common\Model\Column;
+use BiSight\Common\Model\Parameter;
 use BiSight\DataSet\Model\Query;
 
 class Report
@@ -116,8 +117,20 @@ class Report
         return $this->filters;
     }
 
+    private $parameters = array();
+
+    public function addParameter(Parameter $parameter)
+    {
+        $this->parameters[] = $parameter;
+        return $this;
+    }
+
+    public function getParameters()
+    {
+        return $this->parameters;
+    }
     
-    public function getQuery($parameters)
+    public function getQuery()
     {
         $q = new Query($this->dataSet);
         foreach ($this->columns as $column) {

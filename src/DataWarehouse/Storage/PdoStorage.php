@@ -55,10 +55,10 @@ class PdoStorage implements StorageInterface
         
     }
     
-    public function dataSetQuery(Query $q)
+    public function dataSetQuery(Query $q, $values = array())
     {
         $dsStorage = new PdoDataSetStorage($this->pdo);
-        $result = $dsStorage->query($q);
+        $result = $dsStorage->query($q, $values);
         return $result;
     }
 }

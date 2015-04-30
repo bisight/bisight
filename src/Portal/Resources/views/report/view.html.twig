@@ -3,7 +3,29 @@
 {% block content %}
 <h1><i class="fa fa-bar-chart"></i> Report "{{ report.getLabel() }}" ({{ report.getName() }})</h1>
 <p>{{ report.getDescription() }}</p>
-
-{{ tablehtml|raw }}
+<div class="row">
+    <div class="col-md-3">
+        <form action="./{{ report.getName() }}" method="post" style="background-color: #e0e0e0; padding: 5px">
+            {% for parameter in report.getParameters() %}
+                <div class="form-group">
+                    <label>{{ parameter.getLabel() }} ({{ parameter.getName() }})<br /></label>
+                    <input
+                        required="required"
+                        class="form-control"
+                        type="date"
+                        name="PARAMETER_{{ parameter.getName() }}"
+                        value="{{ attribute(htmlvalues, parameter.getName()) }}"/>
+                    <span class="help-block">{{ parameter.getDescription() }}</span>
+                </div>
+            {% endfor %}
+            <div class="buttonbox">
+                <button type="submit" class="btn btn-primary">Filter</button>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-9">
+        {{ tablehtml|raw }}
+    </div>
+</div>
 
 {% endblock %}

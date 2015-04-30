@@ -248,17 +248,34 @@ class PortalController
         $reportloader = new XmlDataSetReportLoader($dsrepo);
         
         $report = $reportloader->loadFile($filename);
+        
+        $values = array();
+        foreach ($report->getParameters() as $parameter) {
+            $name = $parameter->getName();
+            $value = $parameter->getDefault();
+            if ($request->request->has('PARAMETER_' . $name)) {
+                $value = $request->request->get('PARAMETER_' . $name);
+            }
+            $htmlvalue = $value;
+            if ($parameter->getType()=='date') {
+                $value = str_replace('-', '', $value);
+                $htmlvalue = substr($value, 0, 4) . '-' . substr($value, 4,2)  . '-' . substr($value, 6,2);
+            }
+            $htmlvalues[$name] = $htmlvalue;
+            $values[$name] = $value;
+        }
 
         $ds = $report->getDataSet();
         
         $parameters = array();
-        $q = $report->getQuery($parameters);
+        $q = $report->getQuery();
 
-        $res = $storage->dataSetQuery($q);
+        $res = $storage->dataSetQuery($q, $values);
         
         $html = $this->getResultSetHtml($res);
         $data['tablehtml'] = $html;
         $data['report'] =  $report;
+        $data['htmlvalues'] =  $htmlvalues;
         return new Response($app['twig']->render(
             'report/view.html.twig',
             $data
