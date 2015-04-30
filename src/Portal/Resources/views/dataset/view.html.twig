@@ -2,7 +2,7 @@
 
 {% block content %}
 <h1><i class="fa fa-table"></i> DataSet "{{ dataset.getName() }}"</h1>
-
+<p>Row count: {{ rowcount }}</p>
 {{ tablehtml|raw }}
 
 {% endblock %}
