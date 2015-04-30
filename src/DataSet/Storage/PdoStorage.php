@@ -21,6 +21,7 @@ class PdoStorage implements StorageInterface
     {
         $ds = $q->getDataSet();
         $groups = $q->getGroups();
+        $filters = $q->getFilters();
         
         $sql = 'SELECT ';
         foreach ($q->getColumns() as $column) {
@@ -56,15 +57,27 @@ class PdoStorage implements StorageInterface
         }
         $sql .= "\n";
         
+        
+        if (count($filters)>0) {
+            $sql .= "WHERE ";
+            foreach ($filters as $filter) {
+                //print_r($filter);
+                $sql .= $filter->getColumn()->getName();
+                $sql .= $filter->getComparison();
+                $sql .= $filter->getValue();
+                $sql .= ' ';
+            }
+            $sql .= "\n";
+        }
 
         if (count($groups)>0) {
             $sql .= "GROUP BY ";
             foreach ($groups as $group) {
                 $sql .= $group->getColumn()->getName() . ', ';
             }
+            $sql = rtrim($sql, ', ');
+            $sql .= "\n";
         }
-        $sql = rtrim($sql, ', ');
-        $sql .= "\n";
         
         $orders = $q->getOrders();
         
@@ -88,6 +101,7 @@ class PdoStorage implements StorageInterface
         $sql .= ';';
         $sql = str_replace("\n\n\n", "\n", $sql);
         $sql = str_replace("\n\n", "\n", $sql);
+        //exit($sql);
         return $sql;
     }
     
