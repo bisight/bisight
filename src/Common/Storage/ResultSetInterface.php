@@ -1,6 +1,6 @@
 <?php
 
-namespace BiSight\DataWarehouse\Model;
+namespace BiSight\Common\Storage;
 
 interface ResultSetInterface
 {

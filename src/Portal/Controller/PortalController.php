@@ -5,7 +5,7 @@ use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use LinkORB\Component\DatabaseManager\DatabaseManager;
-use BiSight\Portal\Model\Perspective;
+use BiSight\Common\Storage\ResultSetInterface;
 use BiSight\DataSet\Model\DataSet;
 use BiSight\DataSet\Model\Join;
 use BiSight\DataSet\Model\Filter;
@@ -13,7 +13,6 @@ use BiSight\DataSet\Model\Group;
 use BiSight\DataSet\Model\Order;
 use BiSight\DataSet\Model\Query as DataSetQuery;
 use BiSight\DataWarehouse\Model\Column;
-use BiSight\DataWarehouse\Model\ResultSetInterface;
 use BiSight\DataSet\Loader\XmlLoader as XmlDataSetLoader;
 
 use PDO;
@@ -182,9 +181,9 @@ class PortalController
         $html = $this->getResultSetHtml($res);
         $data['tablename'] = 'x';
         $data['tablehtml'] = $html;
-        
+        $data['dataset'] =  $ds;
         return new Response($app['twig']->render(
-            'tables/view.html.twig',
+            'dataset/view.html.twig',
             $data
         ));
         
