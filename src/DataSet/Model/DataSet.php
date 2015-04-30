@@ -83,7 +83,7 @@ class DataSet
     public function getColumn($name)
     {
         if (!isset($this->columns[$name])) {
-            throw new RuntimeException("No such columnname on this dataset: " . $name);
+            throw new RuntimeException("No such columnname on dataset `" . $this->getName() . "`: " . $name);
         }
         return $this->columns[$name];
     }
