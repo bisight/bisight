@@ -22,6 +22,14 @@ dataset_view:
     pattern: /dw/{dwcode}/dataset/{dscode}
     defaults:  { _controller: BiSight\Portal\Controller\PortalController::viewDataSetAction }
 
+dataset_index:
+    pattern: /dw/{dwcode}/dataset
+    defaults:  { _controller: BiSight\Portal\Controller\PortalController::indexDataSetAction }
+
+report_index:
+    pattern: /dw/{dwcode}/report
+    defaults:  { _controller: BiSight\Portal\Controller\PortalController::indexReportAction }
+
 report_view:
     pattern: /dw/{dwcode}/report/{reportname}
     defaults:  { _controller: BiSight\Portal\Controller\PortalController::viewReportAction }
