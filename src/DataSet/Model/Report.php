@@ -103,6 +103,20 @@ class Report
         return $this->orders;
     }
     
+    private $filters = array();
+
+    public function addFilter(Filter $filter)
+    {
+        $this->filters[] = $filter;
+        return $this;
+    }
+
+    public function getFilters()
+    {
+        return $this->filters;
+    }
+
+    
     public function getQuery($parameters)
     {
         $q = new Query($this->dataSet);
@@ -114,6 +128,9 @@ class Report
         }
         foreach ($this->orders as $order) {
             $q->addOrder($order);
+        }
+        foreach ($this->filters as $filter) {
+            $q->addFilter($filter);
         }
         return $q;
         // construct a Query object based on provided parameters

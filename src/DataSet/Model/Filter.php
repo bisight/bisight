@@ -2,7 +2,9 @@
 
 namespace BiSight\DataSet\Model;
 
-class Join
+use BiSight\Common\Model\Column;
+
+class Filter
 {
     private $name;
     
@@ -16,16 +18,16 @@ class Join
         $this->name = $name;
     }
     
-    private $columnName;
+    private $column;
     
-    public function getColumnName()
+    public function getColumn()
     {
-        return $this->columnName;
+        return $this->column;
     }
     
-    public function setColumnName($columnName)
+    public function setColumn(Column $column)
     {
-        $this->columnName = $columnName;
+        $this->column = $column;
     }
     
     private $comparison;

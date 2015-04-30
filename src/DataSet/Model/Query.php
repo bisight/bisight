@@ -51,6 +51,19 @@ class Query
         return $this->groups;
     }
     
+    private $filters = array();
+
+    public function addFilter(Filter $filter)
+    {
+        $this->filters[] = $filter;
+        return $this;
+    }
+
+    public function getFilters()
+    {
+        return $this->filters;
+    }
+
     private $orders = array();
 
     public function addOrder(Order $order)
