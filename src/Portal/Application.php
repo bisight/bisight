@@ -16,6 +16,10 @@ use LinkORB\Component\DatabaseManager\DatabaseManager;
 use BiSight\DataWarehouse\Model\DataWarehouse;
 use BiSight\DataWarehouse\Repository\ArrayDataWarehouseRepository;
 use BiSight\Olap\Repository\StaticSchemaRepository;
+use BiSight\DataSet\Repository\XmlDataSetRepository;
+use BiSight\DataSet\Loader\XmlLoader as XmlDataSetLoader;
+use BiSight\DataSet\Loader\XmlReportLoader as XmlDataSetReportLoader;
+
 
 use RuntimeException;
 
@@ -55,13 +59,19 @@ class Application extends SilexApplication
         $json = file_get_contents(__DIR__.'/../../config.json');
         $config = json_decode($json, true);
         $this['name'] = $config['name'];
+
+        $this['bisight.baseurl'] = $config['baseurl'];
+        $this['bisight.datamodelpath'] = __DIR__ . '/../../' . $config['datamodelpath'];
         
         $this->dataWarehouseRepository = new ArrayDataWarehouseRepository($config['datawarehouses']);
         
         $this->schemaRepository = new StaticSchemaRepository();
         
-        $this['bisight.baseurl'] = $config['baseurl'];
-        
+        $loader = new XmlDataSetLoader();
+        $this->dataSetRepository = new XmlDataSetRepository(
+            $loader,
+            $this['bisight.datamodelpath'] . '/dataset'
+        );
         
     }
 
@@ -124,5 +134,10 @@ class Application extends SilexApplication
     public function getSchemaRepository()
     {
         return $this->schemaRepository;
+    }
+    
+    public function getDataSetRepository()
+    {
+        return $this->dataSetRepository;
     }
 }
