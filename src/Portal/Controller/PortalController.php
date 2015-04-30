@@ -16,6 +16,7 @@ use BiSight\DataSet\Model\Query as DataSetQuery;
 use BiSight\DataSet\Model\Report;
 use BiSight\DataWarehouse\Model\Column;
 use BiSight\DataSet\Loader\XmlLoader as XmlDataSetLoader;
+use BiSight\DataSet\Loader\XmlReportLoader as XmlDataSetReportLoader;
 
 use PDO;
 
@@ -63,8 +64,11 @@ class PortalController
         ));
     }
     
-    private function getResultSetHtml(ResultSetInterface $res)
+    private function getResultSetHtml(ResultSetInterface $res, $offset = 0, $limit = null)
     {
+        if (!$limit) {
+            $limit = 100; // default
+        }
         $columns = $res->getColumns();
         
         $i = 0;
@@ -81,34 +85,36 @@ class PortalController
             $i++;
         }
         $o .= '</tr></thead>';
+        $i = 0;
         while ($row = $res->getRow()) {
-            $o .= '<tr>';
-            $i = 0;
-            foreach ($row as $key => $value) {
-                $column = null;
-                foreach ($columns as $c) {
-                    if ($c->getAlias() == $key) {
-                        $column = $c;
+            if ($i < $limit && $i >= $offset) {
+                $o .= '<tr>';
+                foreach ($row as $key => $value) {
+                    $column = null;
+                    foreach ($columns as $c) {
+                        if ($c->getAlias() == $key) {
+                            $column = $c;
+                        }
                     }
+
+                    $o .= "<td";
+                    
+                    if ($column->getType() == 'money') {
+                        $o .= " style=\"text-align: right\"";
+                    }
+
+                    $o .= ">";
+
+                    if ($column->getType() == 'money') {
+                        $o .= "&euro; ";
+                    }
+
+                    $o .= $value;
+                    $o .= "</td>";
                 }
-
-                $o .= "<td";
-                
-                if ($column->getType() == 'money') {
-                    $o .= " style=\"text-align: right\"";
-                }
-
-                $o .= ">";
-
-                if ($column->getType() == 'money') {
-                    $o .= "&euro; ";
-                }
-
-                $o .= $value;
-                $o .= "</td>";
-                $i++;
+                $o .= '</tr>' . "\n";
             }
-            $o .= '</tr>' . "\n";
+            $i++;
         }
         
         $o .= '</table>';
@@ -127,9 +133,19 @@ class PortalController
         
         $res = $storage->getResultSetByTablename($tablename);
         
-        
-        $data['tablehtml'] = $this->getResultSetHtml($res);
-        
+        $limit = null;
+        if ($request->query->has('limit')) {
+            $limit = $request->query->get('limit');
+        }
+
+        $offset = null;
+        if ($request->query->has('offset')) {
+            $limit = $request->query->get('offset');
+        }
+
+        $data['tablehtml'] = $this->getResultSetHtml($res, $offset, $limit);
+        $data['rowcount'] =  $res->getRowCount();
+
         return new Response($app['twig']->render(
             'tables/view.html.twig',
             $data
@@ -152,37 +168,66 @@ class PortalController
         ));
     }
     
+    public function indexDataSetAction(Application $app, Request $request, $dwcode)
+    {
+        $dwrepo = $app->getDataWarehouseRepository();
+        $dw = $dwrepo->getByCode($dwcode);
+        $dbname = $dw->getConfig('dbname');
+        $dm = new DatabaseManager();
+        $pdo = $dm->getPdo($dbname);
+
+        $loader = new XmlDataSetLoader();
+        
+        $path = $app['bisight.datamodelpath'] . '/dataset';
+        $datasets = array();
+        foreach (glob($path . "/*.xml") as $filename) {
+            $ds = $loader->loadFile($filename);
+            $ds->setName(str_replace('.xml', '', basename($filename)));
+            $datasets[] = $ds;
+        }
+        
+        $data = array();
+        $data['datasets'] = $datasets;
+        
+        return new Response($app['twig']->render(
+            'dataset/index.html.twig',
+            $data
+        ));
+    }
+
+    
     public function viewDataSetAction(Application $app, Request $request, $dwcode, $dscode)
     {
         $dwrepo = $app->getDataWarehouseRepository();
         $dw = $dwrepo->getByCode($dwcode);
         $storage = $dw->getStorage();
-
-        $filename = __DIR__ . '/../../../example/dataset/sales.xml';
+        
+        $filename = $app['bisight.datamodelpath'] . '/dataset/' . $dscode . '.xml';
         $loader = new XmlDataSetLoader();
         $ds = $loader->loadFile($filename);
-        
+        $ds->setName(str_replace('.xml', '', basename($filename)));
+
+        /*
         $c = $ds->getColumn('d.weekday');
         $g = new Group($c);
-
 
         $c = $ds->getColumn('s.price');
         $o = new Order($c);
         $o->setReverse();
+        */
         
         $q = new DataSetQuery($ds);
-        $q->addColumnName('c.fullname')->addColumnName('p.name')->addColumnName('d.weekdayname')->addColumnName('s.price');
-        $q->addGroup($g);
-        $q->addOrder($o);
-        //$q->setLimit(10);
-        $q->setOffset(0);
+        foreach ($ds->getColumns() as $column) {
+            $q->addColumn($column);
+        }
         
         $res = $storage->dataSetQuery($q);
         //print_r($res);
         
-        $html = $this->getResultSetHtml($res);
+        $html = $this->getResultSetHtml($res, 0, 100);
         $data['tablehtml'] = $html;
         $data['dataset'] =  $ds;
+        $data['rowcount'] =  $res->getRowCount();
         return new Response($app['twig']->render(
             'dataset/view.html.twig',
             $data
@@ -197,37 +242,18 @@ class PortalController
         $dw = $dwrepo->getByCode($dwcode);
         $storage = $dw->getStorage();
 
-        $filename = __DIR__ . '/../../../example/dataset/sales.xml';
-        $loader = new XmlDataSetLoader();
-        $ds = $loader->loadFile($filename);
+        $filename = $app['bisight.datamodelpath'] . '/report/' . $reportname . '.xml';
+
+        $dsrepo = $app->getDataSetRepository();
+        $reportloader = new XmlDataSetReportLoader($dsrepo);
         
-        $report = new Report($ds);
-        $report->setName("salesreport");
-        $report->setLabel("Sales report");
-        $report->setDescription("This is the sales report description");
+        $report = $reportloader->loadFile($filename);
+
+        $ds = $report->getDataSet();
         
-        $c = $ds->getColumn('c.fullname');
-        $report->addColumn($c);
-
-        $c = $ds->getColumn('p.name');
-        $report->addColumn($c);
-
-        $c = $ds->getColumn('s.price');
-        $report->addColumn($c);
-        
-        $c = $ds->getColumn('d.weekday');
-        $g = new Group($c);
-        $report->addGroup($g);
-
-        $c = $ds->getColumn('s.price');
-        $o = new Order($c);
-        $o->setReverse();
-        $report->addOrder($o);
-
         $parameters = array();
         $q = $report->getQuery($parameters);
 
-        //print_r($q); exit('yo');
         $res = $storage->dataSetQuery($q);
         
         $html = $this->getResultSetHtml($res);
@@ -237,6 +263,35 @@ class PortalController
             'report/view.html.twig',
             $data
         ));
+    }
+    
+    public function indexReportAction(Application $app, Request $request, $dwcode)
+    {
+        $dwrepo = $app->getDataWarehouseRepository();
+        $dw = $dwrepo->getByCode($dwcode);
+        $dbname = $dw->getConfig('dbname');
+        $dm = new DatabaseManager();
+        $pdo = $dm->getPdo($dbname);
         
+        
+        $dsrepo = $app->getDataSetRepository();
+
+        $loader = new XmlDataSetReportLoader($dsrepo);
+        
+        $path = $app['bisight.datamodelpath'] . '/report';
+        $datasets = array();
+        foreach (glob($path . "/*.xml") as $filename) {
+            $report = $loader->loadFile($filename);
+            $report->setName(str_replace('.xml', '', basename($filename)));
+            $reports[] = $report;
+        }
+        
+        $data = array();
+        $data['reports'] = $reports;
+        
+        return new Response($app['twig']->render(
+            'report/index.html.twig',
+            $data
+        ));
     }
 }
