@@ -1,6 +1,6 @@
 <?php
 
-namespace BiSight\DataSource\Model;
+namespace BiSight\DataSet\Model;
 
 class Join
 {

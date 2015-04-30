@@ -6,15 +6,15 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use LinkORB\Component\DatabaseManager\DatabaseManager;
 use BiSight\Portal\Model\Perspective;
-use BiSight\DataSource\Model\DataSource;
-use BiSight\DataSource\Model\Join;
-use BiSight\DataSource\Model\Filter;
-use BiSight\DataSource\Model\Group;
-use BiSight\DataSource\Model\Order;
-use BiSight\DataSource\Model\Query as DataSourceQuery;
+use BiSight\DataSet\Model\DataSet;
+use BiSight\DataSet\Model\Join;
+use BiSight\DataSet\Model\Filter;
+use BiSight\DataSet\Model\Group;
+use BiSight\DataSet\Model\Order;
+use BiSight\DataSet\Model\Query as DataSetQuery;
 use BiSight\DataWarehouse\Model\Column;
 use BiSight\DataWarehouse\Model\ResultSetInterface;
-use BiSight\DataSource\Loader\XmlLoader as XmlDataSourceLoader;
+use BiSight\DataSet\Loader\XmlLoader as XmlDataSetLoader;
 
 use PDO;
 
@@ -151,14 +151,14 @@ class PortalController
         ));
     }
     
-    public function viewDataSourceAction(Application $app, Request $request, $dwcode, $dscode)
+    public function viewDataSetAction(Application $app, Request $request, $dwcode, $dscode)
     {
         $dwrepo = $app->getDataWarehouseRepository();
         $dw = $dwrepo->getByCode($dwcode);
         $storage = $dw->getStorage();
 
         $filename = __DIR__ . '/../../../example/dataset/sales.xml';
-        $loader = new XmlDataSourceLoader();
+        $loader = new XmlDataSetLoader();
         $ds = $loader->loadFile($filename);
         
         $c = $ds->getColumn('d.weekday');
@@ -169,14 +169,14 @@ class PortalController
         $o = new Order($c);
         $o->setReverse();
         
-        $q = new DataSourceQuery($ds);
+        $q = new DataSetQuery($ds);
         $q->addColumnName('c.fullname')->addColumnName('p.name')->addColumnName('d.weekdayname')->addColumnName('s.price');
         $q->addGroup($g);
         $q->addOrder($o);
         //$q->setLimit(10);
         $q->setOffset(0);
         
-        $res = $storage->dataSourceQuery($q);
+        $res = $storage->dataSetQuery($q);
         //print_r($res);
         
         $html = $this->getResultSetHtml($res);

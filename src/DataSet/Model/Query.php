@@ -1,21 +1,21 @@
 <?php
 
-namespace BiSight\DataSource\Model;
+namespace BiSight\DataSet\Model;
 
 use BiSight\DataWarehouse\Model\Column;
 
 class Query
 {
-    private $dataSource;
+    private $dataSet;
     
-    public function __construct(DataSource $dataSource)
+    public function __construct(DataSet $dataSet)
     {
-        $this->dataSource = $dataSource;
+        $this->dataSet = $dataSet;
     }
     
-    public function getDataSource()
+    public function getDataSet()
     {
-        return $this->dataSource;
+        return $this->dataSet;
     }
     
     private $columns = array();
@@ -28,7 +28,7 @@ class Query
 
     public function addColumnName($columnName)
     {
-        $column = $this->dataSource->getColumn($columnName);
+        $column = $this->dataSet->getColumn($columnName);
         $this->addColumn($column);
         return $this;
     }
@@ -87,6 +87,4 @@ class Query
     {
         $this->offset = $offset;
     }
-    
-    
 }

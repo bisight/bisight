@@ -18,6 +18,6 @@ olapschema_view:
     pattern: /dw/{dwcode}/olapschema
     defaults:  { _controller: BiSight\Portal\Controller\PortalController::viewOlapSchemaAction }
 
-datasource_view:
-    pattern: /dw/{dwcode}/datasource/{dscode}
-    defaults:  { _controller: BiSight\Portal\Controller\PortalController::viewDataSourceAction }
+dataset_view:
+    pattern: /dw/{dwcode}/dataset/{dscode}
+    defaults:  { _controller: BiSight\Portal\Controller\PortalController::viewDataSetAction }

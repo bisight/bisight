@@ -4,7 +4,7 @@ namespace BiSight\DataWarehouse\Storage;
 
 use BiSight\DataWarehouse\Model\PdoResultSet;
 use BiSight\DataWarehouse\Model\Table;
-use BiSight\DataSource\Model\Query;
+use BiSight\DataSet\Model\Query;
 use RuntimeException;
 use PDO;
 
@@ -45,7 +45,7 @@ class PdoStorage implements StorageInterface
     
     private function getQuerySql(Query $q)
     {
-        $ds = $q->getDataSource();
+        $ds = $q->getDataSet();
         $groups = $q->getGroups();
         
         $sql = 'SELECT ';
@@ -117,12 +117,12 @@ class PdoStorage implements StorageInterface
         return $sql;
     }
     
-    public function dataSourceQuery(Query $q)
+    public function dataSetQuery(Query $q)
     {
         $sql = $this->getQuerySql($q);
         $stmt = $this->pdo->prepare($sql);
         $res = $stmt->execute();
-        $result = new PdoResultSet($stmt, $q->getDataSource()->getColumns());
+        $result = new PdoResultSet($stmt, $q->getDataSet()->getColumns());
         return $result;
     }
 }

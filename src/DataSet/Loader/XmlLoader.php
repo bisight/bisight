@@ -1,17 +1,13 @@
 <?php
 
-namespace BiSight\DataSource\Loader;
+namespace BiSight\DataSet\Loader;
 
-use BiSight\DataSource\Model\DataSource;
-use BiSight\DataSource\Model\Join;
-use BiSight\DataSource\Model\Group;
-use BiSight\DataSource\Model\Filter;
-use BiSight\DataSource\Model\Order;
-use BiSight\DataSource\Model\Query;
+use BiSight\DataSet\Model\DataSet;
+use BiSight\DataSet\Model\Join;
+use BiSight\DataSet\Model\Filter;
 use BiSight\DataWarehouse\Model\Column;
 use RuntimeException;
 use SimpleXMLElement;
-
 
 class XmlLoader
 {
@@ -26,7 +22,7 @@ class XmlLoader
     
     public function load(SimpleXMLElement $xml)
     {
-        $ds = new DataSource();
+        $ds = new DataSet();
         
         $ds->setName((string)$xml->name);
         $ds->setTableName((string)$xml->tablename);

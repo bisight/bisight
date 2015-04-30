@@ -1,11 +1,11 @@
 <?php
 
-namespace BiSight\DataSource\Model;
+namespace BiSight\DataSet\Model;
 
 use BiSight\DataWarehouse\Model\Column;
 use RuntimeException;
 
-class DataSource
+class DataSet
 {
     private $name;
     
