@@ -73,8 +73,10 @@
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li><a href="{{ path("datawarehouse", { dwcode: datawarehouse.getCode() })}}"><i class="fa fa-database"></i> {{ datawarehouse.getName() }}</a></li>
-            <li><a href="{{ path("olapschema_view", { dwcode: datawarehouse.getCode() })}}"><i class="fa fa-cube"></i> OLAP Cubes</a></li>
             <li><a href="{{ path("table_index", { dwcode: datawarehouse.getCode() })}}"><i class="fa fa-table"></i> Tables</a></li>
+            <li><a href="{{ path("dataset_index", { dwcode: datawarehouse.getCode() })}}"><i class="fa fa-sitemap"></i> Datasets</a></li>
+            <li><a href="{{ path("report_index", { dwcode: datawarehouse.getCode() })}}"><i class="fa fa-bar-chart"></i> Reports</a></li>
+            <li><a href="{{ path("olapschema_view", { dwcode: datawarehouse.getCode() })}}"><i class="fa fa-cube"></i> OLAP Cubes</a></li>
           </ul>
           <!--
           <ul class="nav navbar-nav navbar-right">
