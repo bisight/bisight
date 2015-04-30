@@ -43,6 +43,30 @@ class DataSource
         $this->description = $description;
     }
     
+    private $alias;
+    
+    public function getAlias()
+    {
+        return $this->alias;
+    }
+    
+    public function setAlias($alias)
+    {
+        $this->alias = $alias;
+    }
+    
+    
+    private $joins = array();
+    
+    public function addJoin(Join $join)
+    {
+        $this->joins[] = $join;
+    }
+    
+    public function getJoins()
+    {
+        return $this->joins;
+    }
     
     private $columns = array();
     
@@ -62,30 +86,5 @@ class DataSource
             throw new RuntimeException("No such columnname on this dataset: " . $name);
         }
         return $this->columns[$name];
-    }
-    
-    
-    private $joins = array();
-    
-    public function addJoin(Join $join)
-    {
-        $this->joins[] = $join;
-    }
-    
-    public function getJoins()
-    {
-        return $this->joins;
-    }
-    
-    private $alias;
-    
-    public function getAlias()
-    {
-        return $this->alias;
-    }
-    
-    public function setAlias($alias)
-    {
-        $this->alias = $alias;
     }
 }
