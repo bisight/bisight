@@ -23,7 +23,7 @@ class Parameter
         if ($this->label) {
             return $this->label;
         }
-        return $this->getAlias();
+        return $this->getName();
     }
     
     public function setLabel($label)
@@ -54,4 +54,17 @@ class Parameter
     {
         $this->type = $type;
     }
+    
+    private $default;
+    
+    public function getDefault()
+    {
+        return $this->default;
+    }
+    
+    public function setDefault($default)
+    {
+        $this->default = $default;
+    }
+    
 }
