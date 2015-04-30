@@ -10,6 +10,7 @@ use BiSight\DataSet\Model\Order;
 use BiSight\DataSet\Model\Filter;
 use BiSight\DataSet\Repository\DataSetRepositoryInterface;
 use BiSight\Common\Model\Column;
+use BiSight\Common\Model\Parameter;
 use RuntimeException;
 use SimpleXMLElement;
 
@@ -71,7 +72,15 @@ class XmlReportLoader
             $report->addFilter($filter);
         }
         
+        foreach ($xml->parameter as $parameterNode) {
+            $parameter = new Parameter();
+            $parameter->setName((string)$parameterNode['name']);
+            $parameter->setLabel((string)$parameterNode['label']);
+            $parameter->setDescription((string)$parameterNode['description']);
+            $parameter->setType((string)$parameterNode['type']);
+            $parameter->setDefault((string)$parameterNode['default']);
+            $report->addParameter($parameter);
+        }
         return $report;
-        
     }
 }
