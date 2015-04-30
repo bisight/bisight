@@ -207,15 +207,6 @@ class PortalController
         $ds = $loader->loadFile($filename);
         $ds->setName(str_replace('.xml', '', basename($filename)));
 
-        /*
-        $c = $ds->getColumn('d.weekday');
-        $g = new Group($c);
-
-        $c = $ds->getColumn('s.price');
-        $o = new Order($c);
-        $o->setReverse();
-        */
-        
         $q = new DataSetQuery($ds);
         foreach ($ds->getColumns() as $column) {
             $q->addColumn($column);
@@ -237,15 +228,37 @@ class PortalController
     
     private function getHtmlWidget(Parameter $parameter, $value)
     {
-        $o = '<input ';
-        $o .= ' required="required"';
-        $o .= ' class="form-control"';
-        $o .= ' type="date"';
-        $o .= ' name="PARAMETER_' . $parameter->getName() . '"';
-        
-        $htmlvalue = substr($value, 0, 4) . '-' . substr($value, 4, 2) . '-' . substr($value, 6, 2);
+        switch ($parameter->getType()) {
+            case 'date':
+                $o = '<input ';
+                $o .= ' required="required"';
+                $o .= ' class="form-control"';
+                $o .= ' type="date"';
+                $o .= ' name="PARAMETER_' . $parameter->getName() . '"';
+                
+                $htmlvalue = substr($value, 0, 4) . '-' . substr($value, 4, 2) . '-' . substr($value, 6, 2);
 
-        $o .= ' value="' . $htmlvalue . '"/>';
+                $o .= ' value="' . $htmlvalue . '"/>';
+                break;
+            case 'select':
+                $o = '<select ';
+                $o .= ' required="required"';
+                $o .= ' class="form-control"';
+                $o .= ' name="PARAMETER_' . $parameter->getName() . '"';
+                $o .= '>';
+                foreach ($parameter->getOptions() as $option) {
+                    $o .= '<option value="' . $option->getValue() . '"';
+                    if ($value == $option->getValue()) {
+                        $o .= ' selected="selected"';
+                    }
+                    $o .= '>' . $option->getLabel() . '</option>';
+                }
+                $o .= '</select>';
+                
+                break;
+            default:
+                throw new RuntimeException("Unsupported parameter type: ". $parameter->getType());
+        }
         
         return $o;
     }

@@ -67,4 +67,15 @@ class Parameter
         $this->default = $default;
     }
     
+    private $options = array();
+    
+    public function addOption(Option $option)
+    {
+        $this->options[$option->getValue()] = $option;
+    }
+    
+    public function getOptions()
+    {
+        return $this->options;
+    }
 }

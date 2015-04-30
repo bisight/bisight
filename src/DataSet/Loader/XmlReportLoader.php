@@ -11,6 +11,7 @@ use BiSight\DataSet\Model\Filter;
 use BiSight\DataSet\Repository\DataSetRepositoryInterface;
 use BiSight\Common\Model\Column;
 use BiSight\Common\Model\Parameter;
+use BiSight\Common\Model\Option;
 use RuntimeException;
 use SimpleXMLElement;
 
@@ -79,6 +80,14 @@ class XmlReportLoader
             $parameter->setDescription((string)$parameterNode['description']);
             $parameter->setType((string)$parameterNode['type']);
             $parameter->setDefault((string)$parameterNode['default']);
+
+            foreach ($parameterNode->option as $optionNode) {
+                $o = new Option();
+                $o->setValue((string)$optionNode['value']);
+                $o->setLabel((string)$optionNode);
+                $parameter->addOption($o);
+            }
+
             $report->addParameter($parameter);
         }
         return $report;
