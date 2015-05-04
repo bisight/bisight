@@ -4,6 +4,8 @@ namespace BiSight\Portal\Controller;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use LinkORB\Component\DatabaseManager\DatabaseManager;
 use BiSight\Common\Storage\ResultSetInterface;
 use BiSight\Common\Model\Parameter;
@@ -17,7 +19,9 @@ use BiSight\DataSet\Model\Report;
 use BiSight\DataWarehouse\Model\Column;
 use BiSight\DataSet\Loader\XmlLoader as XmlDataSetLoader;
 use BiSight\DataSet\Loader\XmlReportLoader as XmlDataSetReportLoader;
-
+use PHPExcel;
+use PHPExcel_IOFactory;
+use RuntimeException;
 use PDO;
 
 class PortalController
@@ -62,6 +66,42 @@ class PortalController
             'tables/index.html.twig',
             $data
         ));
+    }
+    
+    private function getResultSetExcel(ResultSetInterface $res, $setname)
+    {
+        $excel = new PHPExcel();
+
+        $properties = $excel->getProperties();
+        $properties->setCreator("BiSight Portal");
+        $properties->setLastModifiedBy("BiSight Portal");
+        $properties->setTitle($setname);
+        $properties->setSubject($setname);
+        //$properties->setDescription("Test document for Office 2007 XLSX, generated using PHP classes.");
+        //$properties->setKeywords("office 2007 openxml php");
+        //$properties->setCategory("Test result file");
+
+        $sheet = $excel->setActiveSheetIndex(0);
+
+        $columns = $res->getColumns();
+        
+        $i = 0;
+        foreach ($columns as $column) {
+            $sheet->setCellValueByColumnAndRow($i, 1, $column->getLabel());
+            $i++;
+        }
+        
+        $rowIndex = 2;
+        while ($row = $res->getRow()) {
+            $i = 0;
+            foreach ($row as $key => $value) {
+                $sheet->setCellValueByColumnAndRow($i, $rowIndex, $value);
+                $i++;
+            }
+            $rowIndex++;
+        }
+        $sheet->setTitle($setname);
+        return $excel;
     }
     
     private function getResultSetHtml(ResultSetInterface $res, $offset = 0, $limit = null)
@@ -151,6 +191,55 @@ class PortalController
             $data
         ));
     }
+
+    public function tableDownloadAction(Application $app, Request $request, $dwcode, $tablename)
+    {
+        $dwrepo = $app->getDataWarehouseRepository();
+        $dw = $dwrepo->getByCode($dwcode);
+        $storage = $dw->getStorage();
+        
+        $data = array();
+        $data['tablename'] = $tablename;
+        
+        $res = $storage->getResultSetByTablename($tablename);
+        
+        $limit = 10000;
+
+        $excel = $this->getResultSetExcel($res, 'Table ' . $tablename);
+        
+        
+        $format = $request->query->get('format');
+        switch ($format) {
+            case 'xlsx':
+                $filename = $tablename . '.xlsx';
+                $writer = PHPExcel_IOFactory::createWriter($excel, 'Excel2007');
+                break;
+            case 'csv':
+                $filename = $tablename . '.csv';
+                $writer = PHPExcel_IOFactory::createWriter($excel, 'CSV');
+                break;
+            case 'html':
+                $filename = $tablename . '.html';
+                $writer = PHPExcel_IOFactory::createWriter($excel, 'HTML');
+                break;
+            default:
+                throw new RuntimeException("Unsupported format: " . $format);
+        }
+        
+        $tmpfile = tempnam('/tmp', 'bisight_download_');
+        $writer->save($tmpfile);
+        
+        $response = new BinaryFileResponse($tmpfile);
+
+        $d = $response->headers->makeDisposition(
+            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+            $filename
+        );
+
+        $response->headers->set('Content-Disposition', $d);
+        return $response;
+    }
+
     
     public function viewOlapSchemaAction(Application $app, Request $request, $dwcode)
     {
