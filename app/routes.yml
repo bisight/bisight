@@ -22,13 +22,17 @@ olapschema_view:
     pattern: /dw/{dwcode}/olapschema
     defaults:  { _controller: BiSight\Portal\Controller\PortalController::viewOlapSchemaAction }
 
+dataset_index:
+    pattern: /dw/{dwcode}/dataset
+    defaults:  { _controller: BiSight\Portal\Controller\PortalController::indexDataSetAction }
+
 dataset_view:
     pattern: /dw/{dwcode}/dataset/{dscode}
     defaults:  { _controller: BiSight\Portal\Controller\PortalController::viewDataSetAction }
 
-dataset_index:
-    pattern: /dw/{dwcode}/dataset
-    defaults:  { _controller: BiSight\Portal\Controller\PortalController::indexDataSetAction }
+dataset_download:
+    pattern: /dw/{dwcode}/dataset/{dscode}/download
+    defaults:  { _controller: BiSight\Portal\Controller\PortalController::downloadDataSetAction }
 
 report_index:
     pattern: /dw/{dwcode}/report

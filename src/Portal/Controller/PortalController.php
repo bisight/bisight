@@ -104,6 +104,39 @@ class PortalController
         return $excel;
     }
     
+    private function getExcelResponse($excel, $setname, $format)
+    {
+        switch ($format) {
+            case 'xlsx':
+                $filename = $setname . '.xlsx';
+                $writer = PHPExcel_IOFactory::createWriter($excel, 'Excel2007');
+                break;
+            case 'csv':
+                $filename = $setname . '.csv';
+                $writer = PHPExcel_IOFactory::createWriter($excel, 'CSV');
+                break;
+            case 'html':
+                $filename = $setname . '.html';
+                $writer = PHPExcel_IOFactory::createWriter($excel, 'HTML');
+                break;
+            default:
+                throw new RuntimeException("Unsupported format: " . $format);
+        }
+        
+        $tmpfile = tempnam('/tmp', 'bisight_download_');
+        $writer->save($tmpfile);
+        
+        $response = new BinaryFileResponse($tmpfile);
+
+        $d = $response->headers->makeDisposition(
+            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+            $filename
+        );
+
+        $response->headers->set('Content-Disposition', $d);
+        return $response;
+    }
+    
     private function getResultSetHtml(ResultSetInterface $res, $offset = 0, $limit = null)
     {
         if (!$limit) {
@@ -203,41 +236,9 @@ class PortalController
         
         $res = $storage->getResultSetByTablename($tablename);
         
-        $limit = 10000;
-
         $excel = $this->getResultSetExcel($res, 'Table ' . $tablename);
-        
-        
         $format = $request->query->get('format');
-        switch ($format) {
-            case 'xlsx':
-                $filename = $tablename . '.xlsx';
-                $writer = PHPExcel_IOFactory::createWriter($excel, 'Excel2007');
-                break;
-            case 'csv':
-                $filename = $tablename . '.csv';
-                $writer = PHPExcel_IOFactory::createWriter($excel, 'CSV');
-                break;
-            case 'html':
-                $filename = $tablename . '.html';
-                $writer = PHPExcel_IOFactory::createWriter($excel, 'HTML');
-                break;
-            default:
-                throw new RuntimeException("Unsupported format: " . $format);
-        }
-        
-        $tmpfile = tempnam('/tmp', 'bisight_download_');
-        $writer->save($tmpfile);
-        
-        $response = new BinaryFileResponse($tmpfile);
-
-        $d = $response->headers->makeDisposition(
-            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-            $filename
-        );
-
-        $response->headers->set('Content-Disposition', $d);
-        return $response;
+        return $this->getExcelResponse($excel, $tablename, $format);
     }
 
     
@@ -312,7 +313,29 @@ class PortalController
             'dataset/view.html.twig',
             $data
         ));
+    }
+    
+    public function downloadDataSetAction(Application $app, Request $request, $dwcode, $dscode)
+    {
+        $dwrepo = $app->getDataWarehouseRepository();
+        $dw = $dwrepo->getByCode($dwcode);
+        $storage = $dw->getStorage();
         
+        $filename = $app['bisight.datamodelpath'] . '/dataset/' . $dscode . '.xml';
+        $loader = new XmlDataSetLoader();
+        $ds = $loader->loadFile($filename);
+        $ds->setName(str_replace('.xml', '', basename($filename)));
+
+        $q = new DataSetQuery($ds);
+        foreach ($ds->getColumns() as $column) {
+            $q->addColumn($column);
+        }
+        
+        $res = $storage->dataSetQuery($q);
+        //print_r($res);
+        $excel = $this->getResultSetExcel($res, 'Dataset ' . $dscode);
+        $format = $request->query->get('format');
+        return $this->getExcelResponse($excel, $dscode, $format);
     }
     
     private function getHtmlWidget(Parameter $parameter, $value)
@@ -387,6 +410,22 @@ class PortalController
         $q = $report->getQuery();
 
         $res = $storage->dataSetQuery($q, $values);
+        
+        $format = null;
+        if ($request->request->has('download_csv')) {
+            $format = 'csv';
+        }
+        if ($request->request->has('download_xlsx')) {
+            $format = 'xlsx';
+        }
+        if ($request->request->has('download_html')) {
+            $format = 'html';
+        }
+        
+        if ($format) {
+            $excel = $this->getResultSetExcel($res, 'Report ' . $report->getName());
+            return $this->getExcelResponse($excel, $report->getName(), $format);
+        }
         
         $html = $this->getResultSetHtml($res);
         $data['tablehtml'] = $html;
