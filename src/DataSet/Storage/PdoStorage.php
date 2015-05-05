@@ -25,25 +25,27 @@ class PdoStorage implements StorageInterface
         
         $sql = 'SELECT ';
         foreach ($q->getColumns() as $column) {
-            if (count($groups)==0) {
-                $sqlPart = $column->getName();
-            } else {
-                switch (strtoupper($column->getAggregator())) {
-                    case 'SUM':
-                        $sqlPart = 'SUM(' . $column->getName() . ')';
-                        break;
-                    case '':
-                        $sqlPart = $column->getName();
-                        break;
-                    default:
-                        throw new RuntimeException("Unsupported aggregator: " . $column->getAggregator());
+            if (!$column->isExpression()) {
+                if (count($groups)==0) {
+                    $sqlPart = $column->getName();
+                } else {
+                    switch (strtoupper($column->getAggregator())) {
+                        case 'SUM':
+                            $sqlPart = 'SUM(' . $column->getName() . ')';
+                            break;
+                        case '':
+                            $sqlPart = $column->getName();
+                            break;
+                        default:
+                            throw new RuntimeException("Unsupported aggregator: " . $column->getAggregator());
+                    }
+                    
                 }
-                
+                if ($column->getType() == 'money') {
+                    $sqlPart = 'CAST(' . $sqlPart . ' AS DECIMAL(12,2))';
+                }
+                $sql .= $sqlPart . ' AS ' . $column->getAlias() . ', ';
             }
-            if ($column->getType() == 'money') {
-                $sqlPart = 'CAST(' . $sqlPart . ' AS DECIMAL(12,2))';
-            }
-            $sql .= $sqlPart . ' AS ' . $column->getAlias() . ', ';
         }
         $sql = rtrim($sql, ', ');
         

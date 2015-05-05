@@ -109,4 +109,24 @@ class Column
     {
         $this->foreignColumn = $foreignColumn;
     }
+    
+    private $expression;
+    
+    public function getExpression()
+    {
+        return $this->expression;
+    }
+    
+    public function setExpression($expression)
+    {
+        $this->expression = $expression;
+    }
+    
+    public function isExpression()
+    {
+        if ($this->expression != '') {
+            return true;
+        }
+        return false;
+    }
 }

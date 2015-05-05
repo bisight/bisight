@@ -46,6 +46,7 @@ class XmlLoader
             $c->setDescription((string)$columnNode->description);
             $c->setType((string)$columnNode->type);
             $c->setAggregator((string)$columnNode->aggregator);
+            $c->setExpression((string)$columnNode->expression);
             $ds->addColumn($c);
         }
         
