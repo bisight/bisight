@@ -3,6 +3,7 @@
 namespace BiSight\Common\Storage;
 
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
+use BiSight\Common\ExpressionUtils;
 use PDO;
 
 class PdoResultSet implements ResultSetInterface
@@ -10,12 +11,14 @@ class PdoResultSet implements ResultSetInterface
     private $stmt;
     private $columns;
     private $language;
+    private $utils;
     
     public function __construct($stmt, $columns)
     {
         $this->stmt = $stmt;
         $this->columns = $columns;
         $this->language = new ExpressionLanguage();
+        $this->utils = new ExpressionUtils();
         
     }
     
@@ -28,9 +31,10 @@ class PdoResultSet implements ResultSetInterface
         foreach ($this->columns as $column) {
             if ($column->isExpression()) {
                 //$row[$column->getAlias()] = 9;
+                $row['utils'] = $this->utils;
                 $output = $this->language->evaluate($column->getExpression(), $row);
-                $output = round($output);
                 $row[$column->getAlias()] = $output;
+                unset($row['utils']);
 
             }
         }
