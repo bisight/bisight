@@ -30,7 +30,7 @@ class PdoUserRepository implements UserProviderInterface
         }
         $roles = explode(',', $row['roles']);
 
-        return new User($username, $row['passwordhash']);
+        return new User($username, $row['passwordhash'], $roles);
     }
 
     public function refreshUser(UserInterface $user)

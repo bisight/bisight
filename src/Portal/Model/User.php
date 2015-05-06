@@ -37,6 +37,24 @@ final class User implements AdvancedUserInterface
     {
         return $this->roles;
     }
+    
+    public function hasRole($name)
+    {
+        if (!$name) {
+            return false;
+        }
+        $name = strtoupper($name);
+        foreach ($this->roles as $role) {
+            $role = strtoupper($role);
+            if ($role == $name) {
+                return true;
+            }
+            if ($role == 'ROLE_ADMIN') {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * {@inheritdoc}

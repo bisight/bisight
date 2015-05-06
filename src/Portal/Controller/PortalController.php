@@ -30,8 +30,16 @@ class PortalController
     {
         $data = array("name" => $app['name']);
         $dwrepo = $app->getDataWarehouseRepository();
+        $token = $app['security']->getToken();
+        $user = $token->getUser();
 
-        $data['datawarehouses'] = $dwrepo->getAll();
+        $dws = array();
+        foreach ($dwrepo->getAll() as $dw) {
+            if ($user->hasRole('ROLE_' . $dw->getCode())) {
+                $dws[] = $dw;
+            }
+        }
+        $data['datawarehouses'] = $dws;
 
         return new Response($app['twig']->render(
             'index.html.twig',

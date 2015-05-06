@@ -13,6 +13,14 @@ $app->before(function (Request $request, Application $app) {
         $repo = $app->getDataWarehouseRepository();
         $dw = $repo->getByCode($dwcode);
         $app['twig']->addGlobal('datawarehouse', $dw);
+        
+        
+        $token = $app['security']->getToken();
+        $user = $token->getUser();
+        if (!$user->hasRole('ROLE_' . $dwcode)) {
+            throw new RuntimeException("Access denied");
+        }
+
     }
     $app['request_context']->setBaseUrl($app['bisight.baseurl']);
 });
