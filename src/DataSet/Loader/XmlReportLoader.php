@@ -59,6 +59,9 @@ class XmlReportLoader
             $name = (string)$orderNode['column'];
             $c = $ds->getColumn($name);
             $order = new Order($c);
+            if ((string)$orderNode['reverse']=='true') {
+                $order->setReverse();
+            }
             $report->addOrder($order);
         }
         
