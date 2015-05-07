@@ -313,7 +313,7 @@ class PortalController
         $res = $storage->dataSetQuery($q);
         //print_r($res);
         
-        $html = $this->getResultSetHtml($res, 0, 100);
+        $html = $this->getResultSetHtml($res, 0, 2000);
         $data['tablehtml'] = $html;
         $data['dataset'] =  $ds;
         $data['rowcount'] =  $res->getRowCount();
