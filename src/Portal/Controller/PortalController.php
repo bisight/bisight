@@ -235,6 +235,7 @@ class PortalController
 
     public function tableDownloadAction(Application $app, Request $request, $dwcode, $tablename)
     {
+        set_time_limit(0);
         $dwrepo = $app->getDataWarehouseRepository();
         $dw = $dwrepo->getByCode($dwcode);
         $storage = $dw->getStorage();
@@ -325,6 +326,7 @@ class PortalController
     
     public function downloadDataSetAction(Application $app, Request $request, $dwcode, $dscode)
     {
+        set_time_limit(0);
         $dwrepo = $app->getDataWarehouseRepository();
         $dw = $dwrepo->getByCode($dwcode);
         $storage = $dw->getStorage();
@@ -385,6 +387,7 @@ class PortalController
     
     public function viewReportAction(Application $app, Request $request, $dwcode, $reportname)
     {
+        set_time_limit(0);
         $dwrepo = $app->getDataWarehouseRepository();
         $dw = $dwrepo->getByCode($dwcode);
         $storage = $dw->getStorage();
