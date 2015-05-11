@@ -148,7 +148,7 @@ class PortalController
     private function getResultSetHtml(ResultSetInterface $res, $offset = 0, $limit = null)
     {
         if (!$limit) {
-            $limit = 100; // default
+            $limit = 10000; // default
         }
         $columns = $res->getColumns();
         
