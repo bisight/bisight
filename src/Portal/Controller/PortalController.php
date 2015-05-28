@@ -190,7 +190,7 @@ class PortalController
                         $o .= "&euro; ";
                     }
 
-                    $o .= $value;
+                    $o .= nl2br($value);
                     $o .= "</td>";
                 }
                 $o .= '</tr>' . "\n";
