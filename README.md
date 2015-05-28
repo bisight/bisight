@@ -10,3 +10,7 @@
     /vendor/bin/database-manager database:loadschema bisight app/schema.xml --apply
     
 3. Add one or more records to the `bisight.user` table to login.
+
+### Starting the service:
+
+    php -S 0.0.0.0:8080 -t web/
