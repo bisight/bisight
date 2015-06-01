@@ -1,0 +1,15 @@
+{
+    "name": "Dev server",
+    "baseurl": "",
+    "datamodelpath": "../path/to/datamodel",
+    
+    "datawarehouses": [
+        {
+            "code": "my_dw_id",
+            "name": "User friendly name",
+            "config": {
+                "dbname": "dbname"
+            }
+        }
+    ]
+}
