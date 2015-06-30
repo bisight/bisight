@@ -1,10 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "fd0f86f0ca2c7c782d19d3736cb5f799",
+    "hash": "c3789d638610f5a87d309b45ffdabc09",
     "packages": [
         {
             "name": "doctrine/annotations",
@@ -1649,7 +1649,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/silexphp/Silex/zipball/306eea949c53571509c31ec2ba861c8b9e2d2062",
+                "url": "https://api.github.com/repos/silexphp/Silex/zipball/46f3b7230ec938f3aa7898ee80c863f33689d2b5",
                 "reference": "306eea949c53571509c31ec2ba861c8b9e2d2062",
                 "shasum": ""
             },
@@ -2516,6 +2516,48 @@
                 "templating"
             ],
             "time": "2014-12-25 19:58:19"
+        },
+        {
+            "name": "userbase/client",
+            "version": "v0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/userbase-project/userbase-client-php.git",
+                "reference": "9f882718aa3fd497c10e188b2c13ecaf536ea38f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/userbase-project/userbase-client-php/zipball/9f882718aa3fd497c10e188b2c13ecaf536ea38f",
+                "reference": "9f882718aa3fd497c10e188b2c13ecaf536ea38f",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0",
+                "symfony/security": "~2.6"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "UserBase\\Client\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "authors": [
+                {
+                    "name": "Joost Faassen",
+                    "email": "j.faassen@linkorb.com",
+                    "role": "Development"
+                }
+            ],
+            "description": "UserBase PHP Client: Identity + Login + Signup Service",
+            "homepage": "http://www.github.com/userbase-project/userbase-client-php",
+            "keywords": [
+                "account",
+                "login",
+                "signup",
+                "user"
+            ],
+            "time": "2015-05-26 16:34:23"
         }
     ],
     "packages-dev": [],

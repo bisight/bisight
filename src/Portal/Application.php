@@ -52,7 +52,7 @@ class Application extends SilexApplication
 
     private $dataWarehouseRepository;
     private $schemaRepository;
-    
+
     private function configureParameters()
     {
         $this['debug'] = true;
@@ -62,17 +62,18 @@ class Application extends SilexApplication
 
         $this['bisight.baseurl'] = $config['baseurl'];
         $this['bisight.datamodelpath'] = __DIR__ . '/../../' . $config['datamodelpath'];
-        
+
         $this->dataWarehouseRepository = new ArrayDataWarehouseRepository($config['datawarehouses']);
-        
+
         $this->schemaRepository = new StaticSchemaRepository();
-        
+
         $loader = new XmlDataSetLoader();
         $this->dataSetRepository = new XmlDataSetRepository(
             $loader,
             $this['bisight.datamodelpath'] . '/dataset'
         );
-        
+
+        $this['config.security'] = $config['security'];
     }
 
     private function configureRoutes()
@@ -95,24 +96,52 @@ class Application extends SilexApplication
     {
         $this->register(new SilexSecurityServiceProvider(), array());
 
-        $this['security.encoder.digest'] = new PlaintextPasswordEncoder(true);
+        // $this['security.encoder.digest'] = new PlaintextPasswordEncoder(true);
+        if (isset($this['config.security']['encoder'])) {
+            $digest = '\\Symfony\\Component\\Security\\Core\\Encoder\\'.$this['config.security']['encoder'];
+            $this['security.encoder.digest'] = new $digest(true);
+        }
 
         $this['security.firewalls'] = array(
             'default' => array(
                 'stateless' => true,
                 'pattern' => '^/',
                 'http' => true,
-                'users' => $this->getUserRepository(),
+                'users' => $this->getUserSecurityProvider(),
             ),
         );
     }
 
-    private function getUserRepository()
+    private function getUserSecurityProvider()
     {
-        $dbmanager = new DatabaseManager();
-        $pdo = $dbmanager->getPdo('bisight');
-        return new \BiSight\Portal\Repository\PdoUserRepository($pdo);
+        foreach ($this['config.security']['providers'] as $providerConfig) {
+            switch ($providerConfig['name']) {
+                case 'pdo':
+                    $dbmanager = new DatabaseManager();
+                    return new \BiSight\Portal\Repository\PdoUserRepository(
+                        $dbmanager->getPdo($providerConfig['database'])
+                    );
+                case 'userbase':
+                    return new \UserBase\Client\UserProvider(
+                        new \UserBase\Client\Client(
+                            $providerConfig['url'],
+                            $providerConfig['username'],
+                            $providerConfig['password']
+                        )
+                    );
+                default:
+                    break;
+            }
+        }
+        throw new RuntimeException('Cannot find any security provider');
     }
+
+    // private function getUserRepository()
+    // {
+    //     $dbmanager = new DatabaseManager();
+    //     $pdo = $dbmanager->getPdo('bisight');
+    //     return new \BiSight\Portal\Repository\PdoUserRepository($pdo);
+    // }
 
     /*
     public function getPdo($databaseName)
@@ -125,17 +154,17 @@ class Application extends SilexApplication
         return $this['pdo.'.$databaseName];
     }
     */
-    
+
     public function getDataWarehouseRepository()
     {
         return $this->dataWarehouseRepository;
     }
-    
+
     public function getSchemaRepository()
     {
         return $this->schemaRepository;
     }
-    
+
     public function getDataSetRepository()
     {
         return $this->dataSetRepository;

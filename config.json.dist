@@ -2,14 +2,30 @@
     "name": "Dev server",
     "baseurl": "",
     "datamodelpath": "../path/to/datamodel",
-    
+
     "datawarehouses": [
         {
             "code": "my_dw_id",
             "name": "User friendly name",
+            "schema": "schema name",
             "config": {
                 "dbname": "dbname"
             }
         }
-    ]
+    ],
+
+    "security": {
+        "providers": [
+            {
+                "name": "userbase",
+                "url": "http://superbase.io/id/api/v1",
+                "username": "hongliang",
+                "password": "linkorb"
+            },
+            {
+                "name": "pdo",
+                "database": "bisight"
+            }
+        ]
+    }
 }
