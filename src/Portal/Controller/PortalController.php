@@ -56,7 +56,7 @@ class PortalController
             $data
         ));
     }
-    
+
     public function tableIndexAction(Application $app, Request $request, $dwcode)
     {
         $dwrepo = $app->getDataWarehouseRepository();
@@ -69,13 +69,13 @@ class PortalController
 
         $data = array();
         $data['tables'] = $tables;
-        
+
         return new Response($app['twig']->render(
             'tables/index.html.twig',
             $data
         ));
     }
-    
+
     private function getResultSetExcel(ResultSetInterface $res, $setname)
     {
         $excel = new PHPExcel();
@@ -92,13 +92,13 @@ class PortalController
         $sheet = $excel->setActiveSheetIndex(0);
 
         $columns = $res->getColumns();
-        
+
         $i = 0;
         foreach ($columns as $column) {
             $sheet->setCellValueByColumnAndRow($i, 1, $column->getLabel());
             $i++;
         }
-        
+
         $rowIndex = 2;
         while ($row = $res->getRow()) {
             $i = 0;
@@ -111,7 +111,7 @@ class PortalController
         $sheet->setTitle($setname);
         return $excel;
     }
-    
+
     private function getExcelResponse($excel, $setname, $format)
     {
         switch ($format) {
@@ -130,10 +130,10 @@ class PortalController
             default:
                 throw new RuntimeException("Unsupported format: " . $format);
         }
-        
+
         $tmpfile = tempnam('/tmp', 'bisight_download_');
         $writer->save($tmpfile);
-        
+
         $response = new BinaryFileResponse($tmpfile);
 
         $d = $response->headers->makeDisposition(
@@ -144,14 +144,14 @@ class PortalController
         $response->headers->set('Content-Disposition', $d);
         return $response;
     }
-    
+
     private function getResultSetHtml(ResultSetInterface $res, $offset = 0, $limit = null)
     {
         if (!$limit) {
             $limit = 10000; // default
         }
         $columns = $res->getColumns();
-        
+
         $i = 0;
         $o = '';
         $o .= '<div class="table-responsive">';
@@ -179,7 +179,7 @@ class PortalController
                     }
 
                     $o .= "<td";
-                    
+
                     if ($column->getType() == 'money') {
                         $o .= " style=\"text-align: right\"";
                     }
@@ -197,23 +197,23 @@ class PortalController
             }
             $i++;
         }
-        
+
         $o .= '</table>';
         $o .= '</div>';
         return $o;
     }
-    
+
     public function tableViewAction(Application $app, Request $request, $dwcode, $tablename)
     {
         $dwrepo = $app->getDataWarehouseRepository();
         $dw = $dwrepo->getByCode($dwcode);
         $storage = $dw->getStorage();
-        
+
         $data = array();
         $data['tablename'] = $tablename;
-        
+
         $res = $storage->getResultSetByTablename($tablename);
-        
+
         $limit = null;
         if ($request->query->has('limit')) {
             $limit = $request->query->get('limit');
@@ -239,34 +239,34 @@ class PortalController
         $dwrepo = $app->getDataWarehouseRepository();
         $dw = $dwrepo->getByCode($dwcode);
         $storage = $dw->getStorage();
-        
+
         $data = array();
         $data['tablename'] = $tablename;
-        
+
         $res = $storage->getResultSetByTablename($tablename);
-        
+
         $excel = $this->getResultSetExcel($res, 'Table ' . $tablename);
         $format = $request->query->get('format');
         return $this->getExcelResponse($excel, $tablename, $format);
     }
 
-    
+
     public function viewOlapSchemaAction(Application $app, Request $request, $dwcode)
     {
         $dwrepo = $app->getDataWarehouseRepository();
         $dw = $dwrepo->getByCode($dwcode);
-        
+
         $schemarepo = $app->getSchemaRepository();
         $schema = $schemarepo->getByName($dw->getSchemaName());
-        
+
         $data = array('schema' => $schema);
-        
+
         return new Response($app['twig']->render(
             'olapschema.html.twig',
             $data
         ));
     }
-    
+
     public function indexDataSetAction(Application $app, Request $request, $dwcode)
     {
         $dwrepo = $app->getDataWarehouseRepository();
@@ -276,7 +276,7 @@ class PortalController
         $pdo = $dm->getPdo($dbname);
 
         $loader = new XmlDataSetLoader();
-        
+
         $path = $app['bisight.datamodelpath'] . '/dataset';
         $datasets = array();
         foreach (glob($path . "/*.xml") as $filename) {
@@ -284,23 +284,23 @@ class PortalController
             $ds->setName(str_replace('.xml', '', basename($filename)));
             $datasets[] = $ds;
         }
-        
+
         $data = array();
         $data['datasets'] = $datasets;
-        
+
         return new Response($app['twig']->render(
             'dataset/index.html.twig',
             $data
         ));
     }
 
-    
+
     public function viewDataSetAction(Application $app, Request $request, $dwcode, $dscode)
     {
         $dwrepo = $app->getDataWarehouseRepository();
         $dw = $dwrepo->getByCode($dwcode);
         $storage = $dw->getStorage();
-        
+
         $filename = $app['bisight.datamodelpath'] . '/dataset/' . $dscode . '.xml';
         $loader = new XmlDataSetLoader();
         $ds = $loader->loadFile($filename);
@@ -313,7 +313,7 @@ class PortalController
         
         $res = $storage->dataSetQuery($q);
         //print_r($res);
-        
+
         $html = $this->getResultSetHtml($res, 0, 2000);
         $data['tablehtml'] = $html;
         $data['dataset'] =  $ds;
@@ -323,14 +323,14 @@ class PortalController
             $data
         ));
     }
-    
+
     public function downloadDataSetAction(Application $app, Request $request, $dwcode, $dscode)
     {
         set_time_limit(0);
         $dwrepo = $app->getDataWarehouseRepository();
         $dw = $dwrepo->getByCode($dwcode);
         $storage = $dw->getStorage();
-        
+
         $filename = $app['bisight.datamodelpath'] . '/dataset/' . $dscode . '.xml';
         $loader = new XmlDataSetLoader();
         $ds = $loader->loadFile($filename);
@@ -340,14 +340,14 @@ class PortalController
         foreach ($ds->getColumns() as $column) {
             $q->addColumn($column);
         }
-        
+
         $res = $storage->dataSetQuery($q);
         //print_r($res);
         $excel = $this->getResultSetExcel($res, 'Dataset ' . $dscode);
         $format = $request->query->get('format');
         return $this->getExcelResponse($excel, $dscode, $format);
     }
-    
+
     private function getHtmlWidget(Parameter $parameter, $value)
     {
         switch ($parameter->getType()) {
@@ -357,7 +357,7 @@ class PortalController
                 $o .= ' class="form-control"';
                 $o .= ' type="date"';
                 $o .= ' name="PARAMETER_' . $parameter->getName() . '"';
-                
+
                 $htmlvalue = substr($value, 0, 4) . '-' . substr($value, 4, 2) . '-' . substr($value, 6, 2);
 
                 $o .= ' value="' . $htmlvalue . '"/>';
@@ -376,15 +376,15 @@ class PortalController
                     $o .= '>' . $option->getLabel() . '</option>';
                 }
                 $o .= '</select>';
-                
+
                 break;
             default:
                 throw new RuntimeException("Unsupported parameter type: ". $parameter->getType());
         }
-        
+
         return $o;
     }
-    
+
     public function viewReportAction(Application $app, Request $request, $dwcode, $reportname)
     {
         set_time_limit(0);
@@ -396,7 +396,7 @@ class PortalController
 
         $dsrepo = $app->getDataSetRepository();
         $reportloader = new XmlDataSetReportLoader($dsrepo);
-        
+
         $report = $reportloader->loadFile($filename);
         $htmlwidgets = array();
         $values = array();
@@ -409,19 +409,19 @@ class PortalController
             if ($parameter->getType()=='date') {
                 $value = str_replace('-', '', $value);
             }
-            
+
             $html = $this->getHtmlWidget($parameter, $value);
             $htmlwidgets[$name] = $html;
             $values[$name] = $value;
         }
 
         $ds = $report->getDataSet();
-        
+
         $parameters = array();
         $q = $report->getQuery();
 
         $res = $storage->dataSetQuery($q, $values);
-        
+
         $format = null;
         if ($request->request->has('download_csv')) {
             $format = 'csv';
@@ -432,12 +432,12 @@ class PortalController
         if ($request->request->has('download_html')) {
             $format = 'html';
         }
-        
+
         if ($format) {
             $excel = $this->getResultSetExcel($res, 'Report ' . $report->getName());
             return $this->getExcelResponse($excel, $report->getName(), $format);
         }
-        
+
         $html = $this->getResultSetHtml($res);
         $data['tablehtml'] = $html;
         $data['report'] =  $report;
@@ -447,7 +447,7 @@ class PortalController
             $data
         ));
     }
-    
+
     public function indexReportAction(Application $app, Request $request, $dwcode)
     {
         $dwrepo = $app->getDataWarehouseRepository();
@@ -455,12 +455,12 @@ class PortalController
         $dbname = $dw->getConfig('dbname');
         $dm = new DatabaseManager();
         $pdo = $dm->getPdo($dbname);
-        
-        
+
+
         $dsrepo = $app->getDataSetRepository();
 
         $loader = new XmlDataSetReportLoader($dsrepo);
-        
+
         $path = $app['bisight.datamodelpath'] . '/report';
         $datasets = array();
         foreach (glob($path . "/*.xml") as $filename) {
@@ -468,10 +468,10 @@ class PortalController
             $report->setName(str_replace('.xml', '', basename($filename)));
             $reports[] = $report;
         }
-        
+
         $data = array();
         $data['reports'] = $reports;
-        
+
         return new Response($app['twig']->render(
             'report/index.html.twig',
             $data
