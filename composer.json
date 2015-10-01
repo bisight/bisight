@@ -4,24 +4,32 @@
     "homepage": "http://www.github.com/bisight/bisight",
     "keywords": ["business intelligence", "bisight", "portal", "olap", "cube"],
     "type": "application",
-    "authors": [
-        {
-            "name": "Joost Faassen",
-            "email": "j.faassen@linkorb.com",
-            "role": "Development"
-        }
-    ],
+    "authors": [{
+        "name": "Joost Faassen",
+        "email": "j.faassen@linkorb.com",
+        "role": "Development"
+    }],
     "require": {
-        "symfony/console": "~2.5",
+        "symfony/console": "2.5.*",
         "symfony/config": "~2.6",
-        "silex/silex": "2.0.*@dev",
-        "twig/twig": "1.16.*@dev",
-        "symfony/twig-bridge": "~2.4",
-        "symfony/security": "~2.3",
-        "doctrine/dbal": "~2.5",
+        "silex/silex": "2.0.x-dev#306eea949c53571509c31ec2ba861c8b9e2d2062",
+        "twig/twig": "v1.16.3",
+        "symfony/twig-bridge": "2.4.*",
+        "symfony/security": "2.3.*",
+        "doctrine/dbal": "2.5.*",
         "phpoffice/phpexcel": "~1.8",
-        "linkorb/database-manager": "dev-master",
+        "linkorb/database-manager": "~2.0",
         "symfony/expression-language": "~2.4"
+    },
+    "require-dev": {
+        "dbtk/schema-loader": "~2.1",
+        "linkorb/haigha": "~2.2",
+        "linkorb/conventions-checker": "^1.1"
+    },
+    "extra": {
+        "grumphp": {
+            "config-default-path": "vendor/linkorb/conventions-checker/config/app/grumphp.yml"
+        }
     },
     "autoload": {
         "psr-4": {

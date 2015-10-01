@@ -1,16 +1,15 @@
 # BiSight
 
-## Installation
+## Getting started
 
-### Create database schema
+1. Just run:
 
-1. Creata a valid `bisight.conf` file for the database-manager
-2. Run the following command:
 ```
-/vendor/bin/database-manager database:loadschema bisight app/schema.xml --apply
+./bin/try.sh
 ```
-3. Add one or more records to the `bisight.user` table to login.
 
-### Starting the service:
+2. Add one or more records to the `bisight.user` table to login.
 
-    php -S 0.0.0.0:8080 -t web/
+You can add new users to `test/fixture/example-data.yml`.
+
+3. Open `localhost:8080` at browser and type `admin` as username and `admin` as password.

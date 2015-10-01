@@ -1,0 +1,7 @@
+table.user:
+    user1:
+        username: admin
+        passwordhash: admin
+        displayname: Admin
+        email: admin@example.com
+        roles: "[SUPER_ADMIN]"

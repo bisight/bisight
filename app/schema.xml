@@ -2,10 +2,10 @@
 <schema>
 
     <table name="user">
-        <column name="username" type="varchar(32)" />
-        <column name="passwordhash" type="varchar(128)" />
-        <column name="displayname" type="varchar(64)" />
-        <column name="email" type="varchar(64)" />
+        <column name="username" type="string" length="32" />
+        <column name="passwordhash" type="string" length="128" />
+        <column name="displayname" type="string" length="64" />
+        <column name="email" type="string" length="64" />
         <column name="roles" type="text" />
     </table>
     
