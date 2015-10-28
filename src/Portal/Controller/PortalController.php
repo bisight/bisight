@@ -19,6 +19,8 @@ use BiSight\DataSet\Model\Report;
 use BiSight\DataWarehouse\Model\Column;
 use BiSight\DataSet\Loader\XmlLoader as XmlDataSetLoader;
 use BiSight\DataSet\Loader\XmlReportLoader as XmlDataSetReportLoader;
+use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
+use BiSight\Common\ExpressionUtils;
 use PHPExcel;
 use PHPExcel_IOFactory;
 use RuntimeException;
@@ -152,6 +154,9 @@ class PortalController
         }
         $columns = $res->getColumns();
 
+        $language = new ExpressionLanguage();
+        $utils = new ExpressionUtils();
+
         $i = 0;
         $o = '';
         $o .= '<div class="table-responsive">';
@@ -170,12 +175,25 @@ class PortalController
         while ($row = $res->getRow()) {
             if ($i < $limit && $i >= $offset) {
                 $o .= '<tr>';
+                $rowData = array();
+                foreach ($row as $key => $value) {
+                    $rowData[$key]=(int)$value;
+                }
+                
                 foreach ($row as $key => $value) {
                     $column = null;
                     foreach ($columns as $c) {
                         if ($c->getAlias() == $key) {
                             $column = $c;
                         }
+                    }
+                    
+                    if ($column->isExpression()) {
+                        $rowData['utils'] = $utils;
+                        //print_r($rowData); echo $column->getExpression();
+                        
+                        $value = $language->evaluate($column->getExpression(), $rowData);
+                        //echo "VALUE: " . $value;
                     }
 
                     $o .= "<td";
@@ -188,6 +206,9 @@ class PortalController
 
                     if ($column->getType() == 'money') {
                         $o .= "&euro; ";
+                        if ($value=='') {
+                            $value = 0.00;
+                        }
                     }
 
                     $o .= nl2br($value);
