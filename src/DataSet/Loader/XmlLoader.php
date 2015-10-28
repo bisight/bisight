@@ -42,6 +42,7 @@ class XmlLoader
         foreach ($xml->column as $columnNode) {
             $c = new Column();
             $c->setName((string)$columnNode->name);
+            $c->setAlias((string)$columnNode->alias);
             $c->setLabel((string)$columnNode->label);
             $c->setDescription((string)$columnNode->description);
             $c->setType((string)$columnNode->type);
