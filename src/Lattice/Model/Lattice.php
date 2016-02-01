@@ -2,7 +2,7 @@
 
 namespace BiSight\Lattice\Model;
 
-use BiSight\Common\Model\Column;
+use BiSight\Core\Model\Column;
 use RuntimeException;
 
 class Lattice

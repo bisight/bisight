@@ -1,0 +1,34 @@
+{% extends "@Theme/layout.html.twig" %}
+
+{% block content %}
+<form action="./{{ report.getName() }}" method="post">
+    
+    <div style="float: right; margin-top: 20px;">
+        <button type="submit" class="btn btn-default" name="download_csv"><i class="fa fa fa-file-text-o"></i> CSV</button>
+        <button type="submit" class="btn btn-default" name="download_html"><i class="fa fa fa-file-code-o"></i> HTML</button>
+        <button type="submit" class="btn btn-default" name="download_xlsx"><i class="fa fa fa-file-excel-o"></i> Excel</button>
+    </div>
+
+    <h1><i class="fa fa-bar-chart"></i> Lattice Report "{{ report.getLabel() }}" ({{ report.getName() }})</h1>
+    <p>{{ report.getDescription() }}</p>
+    <div class="row">
+        <div class="col-md-3">
+            <div style="background-color: #e0e0e0; padding: 5px">
+                {% for parameter in report.getParameters() %}
+                    <div class="form-group">
+                        <label>{{ parameter.getLabel() }} ({{ parameter.getName() }})<br /></label>
+                        {{ attribute(htmlwidgets, parameter.getName())|raw }}
+                        <span class="help-block">{{ parameter.getDescription() }}</span>
+                    </div>
+                {% endfor %}
+                <div class="buttonbox">
+                    <button type="submit" name="filter" class="btn btn-primary">Filter</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            {{ tablehtml|raw }}
+        </div>
+    </div>
+</form>
+{% endblock %}

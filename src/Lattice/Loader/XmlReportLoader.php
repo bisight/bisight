@@ -9,9 +9,9 @@ use BiSight\Lattice\Model\Group;
 use BiSight\Lattice\Model\Order;
 use BiSight\Lattice\Model\Filter;
 use BiSight\Lattice\Repository\LatticeRepositoryInterface;
-use BiSight\Common\Model\Column;
-use BiSight\Common\Model\Parameter;
-use BiSight\Common\Model\Option;
+use BiSight\Core\Model\Column;
+use BiSight\Core\Model\Parameter;
+use BiSight\Core\Model\Option;
 use RuntimeException;
 use SimpleXMLElement;
 

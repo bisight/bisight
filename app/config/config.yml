@@ -1,0 +1,25 @@
+---
+# Import further configuration files
+imports:
+    - { resource: parameters.yml }
+
+# Default app parameters
+parameters:
+    debug: false
+    app_name: BiSight
+    name.Regex: /^[a-z0-9\-]+$/
+
+# Application specific configuration
+app:
+    name: %app_name%
+
+bisight:
+    datamodel_path: %bisight_datamodel_path%
+
+# Security
+security:
+    providers:
+        UserBase:
+            url: %userbase_url%
+            username: %userbase_username%
+            password: %userbase_password%

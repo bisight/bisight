@@ -2,7 +2,8 @@
 
 namespace BiSight\Portal;
 
-use Silex\Application as SilexApplication;
+use Radvance\Framework\BaseWebApplication;
+use Radvance\Framework\FrameworkApplicationInterface;
 use Silex\Provider\TwigServiceProvider;
 use Silex\Provider\SecurityServiceProvider as SilexSecurityServiceProvider;
 use Silex\Provider\FormServiceProvider;
@@ -13,6 +14,8 @@ use Symfony\Component\Routing\Loader\YamlFileLoader;
 use Symfony\Component\Yaml\Parser as YamlParser;
 use Symfony\Component\Security\Core\Encoder\PlaintextPasswordEncoder;
 use LinkORB\Component\DatabaseManager\DatabaseManager;
+use BiSight\Core\Driver\PdoDriver;
+use BiSight\Portal\Model\Warehouse;
 use BiSight\DataWarehouse\Model\DataWarehouse;
 use BiSight\DataWarehouse\Repository\ArrayDataWarehouseRepository;
 use BiSight\Olap\Repository\StaticSchemaRepository;
@@ -22,121 +25,44 @@ use BiSight\Lattice\Loader\XmlReportLoader as XmlLatticeReportLoader;
 
 use RuntimeException;
 
-class Application extends SilexApplication
+class Application extends BaseWebApplication implements FrameworkApplicationInterface
 {
-    public function __construct(array $values = array())
+
+    protected function configureService()
     {
-        parent::__construct($values);
-
-        $this->configureParameters();
-        $this->configureService();
-        $this->configureRoutes();
-        $this->configureTemplateEngine();
-        $this->configureSecurity();
-    }
-
-    private function configureService()
-    {
-        // the form service
-        /*
-        $this->register(new TranslationServiceProvider(), array(
-              'locale' => 'en',
-              'translation.class_path' =>  __DIR__.'/../vendor/symfony/src',
-              'translator.messages' => array(),
-        ));
-        $this->register(new FormServiceProvider());
-        */
-        $this->register(new RoutingServiceProvider());
-    }
-
-    private $dataWarehouseRepository;
-    private $schemaRepository;
-    
-    private function configureParameters()
-    {
-        $this['debug'] = true;
-        $json = file_get_contents(__DIR__.'/../../config.json');
-        $config = json_decode($json, true);
-        $this['name'] = $config['name'];
-
-        $this['bisight.baseurl'] = $config['baseurl'];
-        $this['bisight.datamodelpath'] = __DIR__ . '/../../' . $config['datamodelpath'];
-        
-        $this->dataWarehouseRepository = new ArrayDataWarehouseRepository($config['datawarehouses']);
-        
-        $this->schemaRepository = new StaticSchemaRepository();
+        parent::configureService();
         
         $loader = new XmlLatticeLoader();
         $this->latticeRepository = new XmlLatticeRepository(
             $loader,
-            $this['bisight.datamodelpath'] . '/lattice'
-        );
-        
-    }
-
-    private function configureRoutes()
-    {
-        $locator = new FileLocator(array(__DIR__.'/../../app'));
-        $loader = new YamlFileLoader($locator);
-        $this['routes'] = $loader->load('routes.yml');
-    }
-
-    private function configureTemplateEngine()
-    {
-        $this->register(new TwigServiceProvider(), array(
-            'twig.path' => array(
-                __DIR__.'/Resources/views/',
-            ),
-        ));
-    }
-
-    private function configureSecurity()
-    {
-        $this->register(new SilexSecurityServiceProvider(), array());
-
-        $this['security.encoder.digest'] = new PlaintextPasswordEncoder(true);
-
-        $this['security.firewalls'] = array(
-            'default' => array(
-                'stateless' => true,
-                'pattern' => '^/',
-                'http' => true,
-                'users' => $this->getUserRepository(),
-            ),
+            $this['bisight']['datamodel_path'] . '/lattice'
         );
     }
 
-    private function getUserRepository()
-    {
-        $dbmanager = new DatabaseManager();
-        $pdo = $dbmanager->getPdo('bisight');
-        return new \BiSight\Portal\Repository\PdoUserRepository($pdo);
-    }
-
-    /*
-    public function getPdo($databaseName)
-    {
-        if (!$this->offsetExists('pdo.'.$databaseName)) {
-            $dm = new DatabaseManager();
-            $this['pdo.'.$databaseName] = $dm->getPdo($databaseName);
-        }
-
-        return $this['pdo.'.$databaseName];
-    }
-    */
-    
-    public function getDataWarehouseRepository()
-    {
-        return $this->dataWarehouseRepository;
-    }
-    
-    public function getSchemaRepository()
-    {
-        return $this->schemaRepository;
-    }
+    private $schemaRepository;
+    private $latticeRepository;
     
     public function getLatticeRepository()
     {
         return $this->latticeRepository;
+    }
+    
+    public function getWarehouseDriver(Warehouse $warehouse)
+    {
+        $dm = new DatabaseManager();
+        $pdo = $dm->getPdo('bi_l_pommedejus');
+
+        $driver = new PdoDriver($pdo);
+        return $driver;
+    }
+    
+    public function getWarehouseDataModelPath(Warehouse $warehouse)
+    {
+        return $this['bisight']['datamodel_path'];
+    }
+    
+    protected function getRepositoryPath()
+    {
+        return sprintf('%s/src/Portal/Repository', $this->getRootPath());
     }
 }

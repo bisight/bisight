@@ -2,7 +2,7 @@
 
 namespace BiSight\Lattice\Storage;
 
-use BiSight\Common\Storage\PdoResultSet;
+use BiSight\Core\Driver\PdoResultSet;
 use BiSight\Lattice\Model\Table;
 use BiSight\Lattice\Model\Query;
 

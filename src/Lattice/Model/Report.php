@@ -2,8 +2,8 @@
 
 namespace BiSight\Lattice\Model;
 
-use BiSight\Common\Model\Column;
-use BiSight\Common\Model\Parameter;
+use BiSight\Core\Model\Column;
+use BiSight\Core\Model\Parameter;
 use BiSight\Lattice\Model\Query;
 
 class Report

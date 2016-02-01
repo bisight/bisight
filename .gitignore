@@ -1,3 +1,5 @@
 vendor/*
+app/logs
 config.json
 composer.phar
+app/config/parameters.yml

@@ -1,0 +1,43 @@
+index:
+    pattern: /
+    defaults:  { _controller: BiSight\Portal\Controller\PortalController::indexAction }
+
+warehouse:
+    pattern: /{accountName}/{warehouseName}
+    defaults:  { _controller: BiSight\Portal\Controller\PortalController::viewWarehouseAction }
+
+table_index:
+    pattern: /{accountName}/{warehouseName}/tables
+    defaults:  { _controller: BiSight\Portal\Controller\PortalController::tableIndexAction }
+
+table_view:
+    pattern: /{accountName}/{warehouseName}/tables/{tablename}
+    defaults:  { _controller: BiSight\Portal\Controller\PortalController::tableViewAction }
+
+table_download:
+    pattern: /{accountName}/{warehouseName}/tables/{tablename}/download
+    defaults:  { _controller: BiSight\Portal\Controller\PortalController::tableDownloadAction }
+
+olapschema_view:
+    pattern: /{accountName}/{warehouseName}/olapschema
+    defaults:  { _controller: BiSight\Portal\Controller\PortalController::viewOlapSchemaAction }
+
+lattice_index:
+    pattern: /{accountName}/{warehouseName}/lattices
+    defaults:  { _controller: BiSight\Portal\Controller\PortalController::indexLatticeAction }
+
+lattice_view:
+    pattern: /{accountName}/{warehouseName}/lattices/{latticecode}
+    defaults:  { _controller: BiSight\Portal\Controller\PortalController::viewLatticeAction }
+
+lattice_download:
+    pattern: /{accountName}/{warehouseName}/lattices/{latticecode}/download
+    defaults:  { _controller: BiSight\Portal\Controller\PortalController::downloadLatticeAction }
+
+lattice_report_index:
+    pattern: /{accountName}/{warehouseName}/latticereports
+    defaults:  { _controller: BiSight\Portal\Controller\PortalController::indexLatticeReportAction }
+
+lattice_report_view:
+    pattern: /{accountName}/{warehouseName}/latticereport/{reportname}
+    defaults:  { _controller: BiSight\Portal\Controller\PortalController::viewLatticeReportAction }

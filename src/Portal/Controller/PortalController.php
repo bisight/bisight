@@ -7,8 +7,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use LinkORB\Component\DatabaseManager\DatabaseManager;
-use BiSight\Common\Storage\ResultSetInterface;
-use BiSight\Common\Model\Parameter;
+use BiSight\Core\Driver\ResultSetInterface;
+use BiSight\Core\Model\Parameter;
 use BiSight\Lattice\Model\Lattice;
 use BiSight\Lattice\Model\Join;
 use BiSight\Lattice\Model\Filter;
@@ -16,11 +16,11 @@ use BiSight\Lattice\Model\Group;
 use BiSight\Lattice\Model\Order;
 use BiSight\Lattice\Model\Query as LatticeQuery;
 use BiSight\Lattice\Model\Report;
-use BiSight\DataWarehouse\Model\Column;
+use BiSight\Core\Model\Column;
 use BiSight\Lattice\Loader\XmlLoader as XmlLatticeLoader;
 use BiSight\Lattice\Loader\XmlReportLoader as XmlLatticeReportLoader;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
-use BiSight\Common\ExpressionUtils;
+use BiSight\Core\Utils\ExpressionUtils;
 use PHPExcel;
 use PHPExcel_IOFactory;
 use RuntimeException;
@@ -30,18 +30,16 @@ class PortalController
 {
     public function indexAction(Application $app, Request $request)
     {
-        $data = array("name" => $app['name']);
-        $dwrepo = $app->getDataWarehouseRepository();
-        $token = $app['security']->getToken();
+        $data = array("name" => $app['app']['name']);
+        $token = $app['security.token_storage']->getToken();
         $user = $token->getUser();
+        $warehouseRepo = $app->getRepository('warehouse');
 
-        $dws = array();
-        foreach ($dwrepo->getAll() as $dw) {
-            if ($user->hasRole('ROLE_' . $dw->getCode())) {
-                $dws[] = $dw;
-            }
+        $warehouses = array();
+        foreach ($warehouseRepo->findAll() as $warehouse) {
+            $warehouses[] = $warehouse;
         }
-        $data['datawarehouses'] = $dws;
+        $data['warehouses'] = $warehouses;
 
         return new Response($app['twig']->render(
             'index.html.twig',
@@ -49,25 +47,22 @@ class PortalController
         ));
     }
 
-    public function viewDataWarehouseAction(Application $app, Request $request, $dwcode)
+    public function viewWarehouseAction(Application $app, Request $request, $warehouseName)
     {
         $data = array();
 
         return new Response($app['twig']->render(
-            'datawarehouse.html.twig',
+            'warehouse.html.twig',
             $data
         ));
     }
 
-    public function tableIndexAction(Application $app, Request $request, $dwcode)
+    public function tableIndexAction(Application $app, Request $request, $accountName, $warehouseName)
     {
-        $dwrepo = $app->getDataWarehouseRepository();
-        $dw = $dwrepo->getByCode($dwcode);
-        $dbname = $dw->getConfig('dbname');
-        $dm = new DatabaseManager();
-        $pdo = $dm->getPdo($dbname);
-
-        $tables = $dw->getTables();
+        $warehouseRepo = $app->getRepository('warehouse');
+        $warehouse = $warehouseRepo->findOneByAccountNameAndName($accountName, $warehouseName);
+        $connection = $app->getWarehouseDriver($warehouse);
+        $tables = $connection->getTables();
 
         $data = array();
         $data['tables'] = $tables;
@@ -225,16 +220,16 @@ class PortalController
         return $o;
     }
 
-    public function tableViewAction(Application $app, Request $request, $dwcode, $tablename)
+    public function tableViewAction(Application $app, Request $request, $accountName, $warehouseName, $tablename)
     {
-        $dwrepo = $app->getDataWarehouseRepository();
-        $dw = $dwrepo->getByCode($dwcode);
-        $storage = $dw->getStorage();
+        $warehouseRepo = $app->getRepository('warehouse');
+        $warehouse = $warehouseRepo->findOneByAccountNameAndName($accountName, $warehouseName);
+        $driver = $app->getWarehouseDriver($warehouse);
 
         $data = array();
         $data['tablename'] = $tablename;
 
-        $res = $storage->getResultSetByTablename($tablename);
+        $res = $driver->getResultSetByTablename($tablename);
 
         $limit = null;
         if ($request->query->has('limit')) {
@@ -255,17 +250,17 @@ class PortalController
         ));
     }
 
-    public function tableDownloadAction(Application $app, Request $request, $dwcode, $tablename)
+    public function tableDownloadAction(Application $app, Request $request, $accountName, $warehouseName, $tablename)
     {
         set_time_limit(0);
-        $dwrepo = $app->getDataWarehouseRepository();
-        $dw = $dwrepo->getByCode($dwcode);
-        $storage = $dw->getStorage();
+        $warehouseRepo = $app->getRepository('warehouse');
+        $warehouse = $warehouseRepo->findOneByAccountNameAndName($accountName, $warehouseName);
+        $driver = $app->getWarehouseDriver($warehouse);
 
         $data = array();
         $data['tablename'] = $tablename;
 
-        $res = $storage->getResultSetByTablename($tablename);
+        $res = $driver->getResultSetByTablename($tablename);
 
         $excel = $this->getResultSetExcel($res, 'Table ' . $tablename);
         $format = $request->query->get('format');
@@ -273,13 +268,13 @@ class PortalController
     }
 
 
-    public function viewOlapSchemaAction(Application $app, Request $request, $dwcode)
+    public function viewOlapSchemaAction(Application $app, Request $request, $accountName, $warehouseName)
     {
-        $dwrepo = $app->getDataWarehouseRepository();
-        $dw = $dwrepo->getByCode($dwcode);
+        $warehouseRepo = $app->getRepository('warehouse');
+        $warehouse = $warehouseRepo->findOneByAccountNameAndName($accountName, $warehouseName);
 
         $schemarepo = $app->getSchemaRepository();
-        $schema = $schemarepo->getByName($dw->getSchemaName());
+        $schema = $schemarepo->getByName($warehouse->getSchemaName());
 
         $data = array('schema' => $schema);
 
@@ -289,17 +284,15 @@ class PortalController
         ));
     }
 
-    public function indexLatticeAction(Application $app, Request $request, $dwcode)
+    public function indexLatticeAction(Application $app, Request $request, $accountName, $warehouseName)
     {
-        $dwrepo = $app->getDataWarehouseRepository();
-        $dw = $dwrepo->getByCode($dwcode);
-        $dbname = $dw->getConfig('dbname');
-        $dm = new DatabaseManager();
-        $pdo = $dm->getPdo($dbname);
+        $warehouseRepo = $app->getRepository('warehouse');
+        $warehouse = $warehouseRepo->findOneByAccountNameAndName($accountName, $warehouseName);
+        $driver = $app->getWarehouseDriver($warehouse);
 
         $loader = new XmlLatticeLoader();
 
-        $path = $app['bisight.datamodelpath'] . '/lattice';
+        $path = $app->getWarehouseDataModelPath($warehouse) . '/lattice';
         $lattices = array();
         foreach (glob($path . "/*.xml") as $filename) {
             $lattice = $loader->loadFile($filename);
@@ -317,13 +310,13 @@ class PortalController
     }
 
 
-    public function viewLatticeAction(Application $app, Request $request, $dwcode, $latticecode)
+    public function viewLatticeAction(Application $app, Request $request, $accountName, $warehouseName, $latticecode)
     {
-        $dwrepo = $app->getDataWarehouseRepository();
-        $dw = $dwrepo->getByCode($dwcode);
-        $storage = $dw->getStorage();
+        $warehouseRepo = $app->getRepository('warehouse');
+        $warehouse = $warehouseRepo->findOneByAccountNameAndName($accountName, $warehouseName);
+        $driver = $app->getWarehouseDriver($warehouse);
 
-        $filename = $app['bisight.datamodelpath'] . '/lattice/' . $latticecode . '.xml';
+        $filename = $app->getWarehouseDataModelPath($warehouse) . '/lattice/' . $latticecode . '.xml';
         $loader = new XmlLatticeLoader();
         $lattice = $loader->loadFile($filename);
         $lattice->setName(str_replace('.xml', '', basename($filename)));
@@ -333,7 +326,7 @@ class PortalController
             $q->addColumn($column);
         }
         
-        $res = $storage->latticeQuery($q);
+        $res = $driver->latticeQuery($q);
         //print_r($res);
 
         $html = $this->getResultSetHtml($res, 0, 2000);
@@ -346,14 +339,14 @@ class PortalController
         ));
     }
 
-    public function downloadLatticeAction(Application $app, Request $request, $dwcode, $latticecode)
+    public function downloadLatticeAction(Application $app, Request $request, $accountName, $warehouseName, $latticecode)
     {
         set_time_limit(0);
-        $dwrepo = $app->getDataWarehouseRepository();
-        $dw = $dwrepo->getByCode($dwcode);
-        $storage = $dw->getStorage();
+        $warehouseRepo = $app->getRepository('warehouse');
+        $warehouse = $warehouseRepo->findOneByAccountNameAndName($accountName, $warehouseName);
+        $driver = $app->getWarehouseDriver($warehouse);
 
-        $filename = $app['bisight.datamodelpath'] . '/lattice/' . $latticecode . '.xml';
+        $filename = $app->getWarehouseDataModelPath($warehouse) . '/lattice/' . $latticecode . '.xml';
         $loader = new XmlLatticeLoader();
         $lattice = $loader->loadFile($filename);
         $lattice->setName(str_replace('.xml', '', basename($filename)));
@@ -363,7 +356,7 @@ class PortalController
             $q->addColumn($column);
         }
 
-        $res = $storage->latticeQuery($q);
+        $res = $driver->latticeQuery($q);
         //print_r($res);
         $excel = $this->getResultSetExcel($res, 'Lattice ' . $latticecode);
         $format = $request->query->get('format');
@@ -407,14 +400,14 @@ class PortalController
         return $o;
     }
 
-    public function viewLatticeReportAction(Application $app, Request $request, $dwcode, $reportname)
+    public function viewLatticeReportAction(Application $app, Request $request, $accountName, $warehouseName, $reportname)
     {
         set_time_limit(0);
-        $dwrepo = $app->getDataWarehouseRepository();
-        $dw = $dwrepo->getByCode($dwcode);
-        $storage = $dw->getStorage();
+        $warehouseRepo = $app->getRepository('warehouse');
+        $warehouse = $warehouseRepo->findOneByAccountNameAndName($accountName, $warehouseName);
+        $driver = $app->getWarehouseDriver($warehouse);
 
-        $filename = $app['bisight.datamodelpath'] . '/lattice-report/' . $reportname . '.xml';
+        $filename = $app->getWarehouseDataModelPath($warehouse) . '/lattice-report/' . $reportname . '.xml';
 
         $latticeRepo = $app->getLatticeRepository();
         $reportloader = new XmlLatticeReportLoader($latticeRepo);
@@ -442,7 +435,7 @@ class PortalController
         $parameters = array();
         $q = $report->getQuery();
 
-        $res = $storage->latticeQuery($q, $values);
+        $res = $driver->latticeQuery($q, $values);
 
         $format = null;
         if ($request->request->has('download_csv')) {
@@ -470,20 +463,16 @@ class PortalController
         ));
     }
 
-    public function indexLatticeReportAction(Application $app, Request $request, $dwcode)
+    public function indexLatticeReportAction(Application $app, Request $request, $accountName, $warehouseName)
     {
-        $dwrepo = $app->getDataWarehouseRepository();
-        $dw = $dwrepo->getByCode($dwcode);
-        $dbname = $dw->getConfig('dbname');
-        $dm = new DatabaseManager();
-        $pdo = $dm->getPdo($dbname);
-
+        $warehouseRepo = $app->getRepository('warehouse');
+        $warehouse = $warehouseRepo->findOneByAccountNameAndName($accountName, $warehouseName);
 
         $latticeRepo = $app->getLatticeRepository();
 
         $loader = new XmlLatticeReportLoader($latticeRepo);
 
-        $path = $app['bisight.datamodelpath'] . '/lattice-report';
+        $path = $app->getWarehouseDataModelPath($warehouse) . '/lattice-report';
         $reports = array();
         foreach (glob($path . "/*.xml") as $filename) {
             $report = $loader->loadFile($filename);

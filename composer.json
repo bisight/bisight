@@ -10,12 +10,9 @@
         "role": "Development"
     }],
     "require": {
-        "symfony/console": "2.5.*",
-        "symfony/config": "~2.6",
-        "silex/silex": "2.0.x-dev#306eea949c53571509c31ec2ba861c8b9e2d2062",
-        "twig/twig": "v1.16.3",
-        "symfony/twig-bridge": "2.4.*",
-        "symfony/security": "2.3.*",
+        "radvance/radvance": "dev-master",
+        "silex/silex": "2.0.x-dev#a3881a5a2fc7e0233307c8240d4adc909a559b49",
+        "linkorb/autotune": "~1.0",
         "doctrine/dbal": "2.5.*",
         "phpoffice/phpexcel": "~1.8",
         "linkorb/database-manager": "~2.0",
@@ -25,11 +22,6 @@
         "dbtk/schema-loader": "~2.1",
         "linkorb/haigha": "~2.2",
         "linkorb/conventions-checker": "^1.1"
-    },
-    "extra": {
-        "grumphp": {
-            "config-default-path": "vendor/linkorb/conventions-checker/config/app/grumphp.yml"
-        }
     },
     "autoload": {
         "psr-4": {

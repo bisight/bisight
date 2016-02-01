@@ -1,0 +1,17 @@
+{% extends "@Theme/layout.html.twig" %}
+
+{% block content %}
+    </div>
+    <div class="jumbotron" style="background: none; xbackground-image: url('http://www.infor.com/design2012/images/primages/10x-abstract_blue-NewsFeed_614x261px.jpg')">
+        <div class="container">
+            <h1><i class="fa fa-database"></i> {{ warehouse.getAccountName() }}/{{ warehouse.getName() }}</h1>
+            <h2>Data warehouse</h2>
+        </div>
+    </div>
+    <div class="container">
+        <h3>Details</h3>
+        <ul>
+            <li>Account: {{ warehouse.getAccountName() }}</li>
+            <li>Name: {{ warehouse.getName() }}</li>
+        </ul>
+{% endblock %}

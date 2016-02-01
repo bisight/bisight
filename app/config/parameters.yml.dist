@@ -1,0 +1,7 @@
+---
+parameters:
+    debug: false
+    pdo: mysql://username:password@localhost/bisight
+    userbase_url: http://www.example.com/id/api/v1
+    userbase_username: username
+    userbase_password: password

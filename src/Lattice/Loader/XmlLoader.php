@@ -5,7 +5,7 @@ namespace BiSight\Lattice\Loader;
 use BiSight\Lattice\Model\Lattice;
 use BiSight\Lattice\Model\Join;
 use BiSight\Lattice\Model\Filter;
-use BiSight\Common\Model\Column;
+use BiSight\Core\Model\Column;
 use RuntimeException;
 use SimpleXMLElement;
 
