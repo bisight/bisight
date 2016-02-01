@@ -1,6 +1,6 @@
 <?php
 
-namespace BiSight\DataSet\Model;
+namespace BiSight\Lattice\Model;
 
 use BiSight\Common\Model\Column;
 
@@ -8,14 +8,14 @@ class Query
 {
     private $dataSet;
     
-    public function __construct(DataSet $dataSet)
+    public function __construct(Lattice $lattice)
     {
-        $this->dataSet = $dataSet;
+        $this->lattice = $lattice;
     }
     
-    public function getDataSet()
+    public function getLattice()
     {
-        return $this->dataSet;
+        return $this->lattice;
     }
     
     private $columns = array();
@@ -28,7 +28,7 @@ class Query
 
     public function addColumnName($columnName)
     {
-        $column = $this->dataSet->getColumn($columnName);
+        $column = $this->lattice->getColumn($columnName);
         $this->addColumn($column);
         return $this;
     }

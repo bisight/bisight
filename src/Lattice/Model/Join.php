@@ -1,6 +1,6 @@
 <?php
 
-namespace BiSight\DataSet\Model;
+namespace BiSight\Lattice\Model;
 
 class Join
 {

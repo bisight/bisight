@@ -1,10 +1,10 @@
 <?php
 
-namespace BiSight\DataSet\Loader;
+namespace BiSight\Lattice\Loader;
 
-use BiSight\DataSet\Model\DataSet;
-use BiSight\DataSet\Model\Join;
-use BiSight\DataSet\Model\Filter;
+use BiSight\Lattice\Model\Lattice;
+use BiSight\Lattice\Model\Join;
+use BiSight\Lattice\Model\Filter;
 use BiSight\Common\Model\Column;
 use RuntimeException;
 use SimpleXMLElement;
@@ -14,7 +14,7 @@ class XmlLoader
     public function loadFile($filename)
     {
         if (!file_exists($filename)) {
-            throw new RuntimeException("DataSource file not found: " . $filename);
+            throw new RuntimeException("Lattice file not found: " . $filename);
         }
         $xml = simplexml_load_file($filename);
         return $this->load($xml);
@@ -22,12 +22,12 @@ class XmlLoader
     
     public function load(SimpleXMLElement $xml)
     {
-        $ds = new DataSet();
+        $lattice = new Lattice();
         
-        $ds->setName((string)$xml->name);
-        $ds->setTableName((string)$xml->tablename);
-        $ds->setDescription((string)$xml->description);
-        $ds->setAlias((string)$xml->tablename['alias']);
+        $lattice->setName((string)$xml->name);
+        $lattice->setTableName((string)$xml->tablename);
+        $lattice->setDescription((string)$xml->description);
+        $lattice->setAlias((string)$xml->tablename['alias']);
         
         foreach ($xml->join as $joinNode) {
             $j = new Join();
@@ -36,7 +36,7 @@ class XmlLoader
             $j->setAlias((string)$joinNode->tablename['alias']);
             $j->setForeignKey((string)$joinNode->foreignkey);
             $j->setType((string)$joinNode->type);
-            $ds->addJoin($j);
+            $lattice->addJoin($j);
         }
         
         foreach ($xml->column as $columnNode) {
@@ -48,10 +48,10 @@ class XmlLoader
             $c->setType((string)$columnNode->type);
             $c->setAggregator((string)$columnNode->aggregator);
             $c->setExpression((string)$columnNode->expression);
-            $ds->addColumn($c);
+            $lattice->addColumn($c);
         }
         
-        return $ds;
+        return $lattice;
         
     }
 }

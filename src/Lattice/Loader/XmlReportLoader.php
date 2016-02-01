@@ -1,14 +1,14 @@
 <?php
 
-namespace BiSight\DataSet\Loader;
+namespace BiSight\Lattice\Loader;
 
-use BiSight\DataSet\Model\DataSet;
-use BiSight\DataSet\Model\Report;
-use BiSight\DataSet\Model\Join;
-use BiSight\DataSet\Model\Group;
-use BiSight\DataSet\Model\Order;
-use BiSight\DataSet\Model\Filter;
-use BiSight\DataSet\Repository\DataSetRepositoryInterface;
+use BiSight\Lattice\Model\DataSet;
+use BiSight\Lattice\Model\Report;
+use BiSight\Lattice\Model\Join;
+use BiSight\Lattice\Model\Group;
+use BiSight\Lattice\Model\Order;
+use BiSight\Lattice\Model\Filter;
+use BiSight\Lattice\Repository\LatticeRepositoryInterface;
 use BiSight\Common\Model\Column;
 use BiSight\Common\Model\Parameter;
 use BiSight\Common\Model\Option;
@@ -19,7 +19,7 @@ class XmlReportLoader
 {
     private $dsrepository;
     
-    public function __construct(DataSetRepositoryInterface $dsrepository)
+    public function __construct(LatticeRepositoryInterface $dsrepository)
     {
         $this->dsrepository = $dsrepository;
     }

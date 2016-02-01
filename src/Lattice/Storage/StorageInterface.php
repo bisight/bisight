@@ -1,6 +1,6 @@
 <?php
 
-namespace BiSight\DataSet\Storage;
+namespace BiSight\Lattice\Storage;
 
 interface StorageInterface
 {

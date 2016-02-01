@@ -1,10 +1,11 @@
 <?php
 
-namespace BiSight\DataSet\Storage;
+namespace BiSight\Lattice\Storage;
 
 use BiSight\Common\Storage\PdoResultSet;
-use BiSight\DataSet\Model\Table;
-use BiSight\DataSet\Model\Query;
+use BiSight\Lattice\Model\Table;
+use BiSight\Lattice\Model\Query;
+
 use RuntimeException;
 use PDO;
 
@@ -19,7 +20,7 @@ class PdoStorage implements StorageInterface
     
     private function getQuerySql(Query $q, $values)
     {
-        $ds = $q->getDataSet();
+        $ds = $q->getLattice();
         $groups = $q->getGroups();
         $filters = $q->getFilters();
         
@@ -118,7 +119,7 @@ class PdoStorage implements StorageInterface
         $sql .= ';';
         $sql = str_replace("\n\n\n", "\n", $sql);
         $sql = str_replace("\n\n", "\n", $sql);
-        //exit($sql);
+        // exit($sql);
         return $sql;
     }
     

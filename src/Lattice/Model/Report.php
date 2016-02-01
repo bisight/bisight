@@ -1,23 +1,23 @@
 <?php
 
-namespace BiSight\DataSet\Model;
+namespace BiSight\Lattice\Model;
 
 use BiSight\Common\Model\Column;
 use BiSight\Common\Model\Parameter;
-use BiSight\DataSet\Model\Query;
+use BiSight\Lattice\Model\Query;
 
 class Report
 {
-    private $dataSet;
+    private $lattice;
     
-    public function __construct(DataSet $dataSet)
+    public function __construct(Lattice $lattice)
     {
-        $this->dataSet = $dataSet;
+        $this->lattice = $lattice;
     }
     
-    public function getDataSet()
+    public function getLattice()
     {
-        return $this->dataSet;
+        return $this->lattice;
     }
     
     private $name;
@@ -132,7 +132,7 @@ class Report
     
     public function getQuery()
     {
-        $q = new Query($this->dataSet);
+        $q = new Query($this->lattice);
         foreach ($this->columns as $column) {
             $q->addColumn($column);
         }

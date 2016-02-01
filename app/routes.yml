@@ -22,22 +22,22 @@ olapschema_view:
     pattern: /dw/{dwcode}/olapschema
     defaults:  { _controller: BiSight\Portal\Controller\PortalController::viewOlapSchemaAction }
 
-dataset_index:
-    pattern: /dw/{dwcode}/dataset
-    defaults:  { _controller: BiSight\Portal\Controller\PortalController::indexDataSetAction }
+lattice_index:
+    pattern: /dw/{dwcode}/lattices
+    defaults:  { _controller: BiSight\Portal\Controller\PortalController::indexLatticeAction }
 
-dataset_view:
-    pattern: /dw/{dwcode}/dataset/{dscode}
-    defaults:  { _controller: BiSight\Portal\Controller\PortalController::viewDataSetAction }
+lattice_view:
+    pattern: /dw/{dwcode}/lattices/{latticecode}
+    defaults:  { _controller: BiSight\Portal\Controller\PortalController::viewLatticeAction }
 
-dataset_download:
-    pattern: /dw/{dwcode}/dataset/{dscode}/download
-    defaults:  { _controller: BiSight\Portal\Controller\PortalController::downloadDataSetAction }
+lattice_download:
+    pattern: /dw/{dwcode}/lattices/{latticecode}/download
+    defaults:  { _controller: BiSight\Portal\Controller\PortalController::downloadLatticeAction }
 
-report_index:
-    pattern: /dw/{dwcode}/report
-    defaults:  { _controller: BiSight\Portal\Controller\PortalController::indexReportAction }
+lattice_report_index:
+    pattern: /dw/{dwcode}/latticereports
+    defaults:  { _controller: BiSight\Portal\Controller\PortalController::indexLatticeReportAction }
 
-report_view:
-    pattern: /dw/{dwcode}/report/{reportname}
-    defaults:  { _controller: BiSight\Portal\Controller\PortalController::viewReportAction }
+lattice_report_view:
+    pattern: /dw/{dwcode}/latticereport/{reportname}
+    defaults:  { _controller: BiSight\Portal\Controller\PortalController::viewLatticeReportAction }

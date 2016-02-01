@@ -1,11 +1,11 @@
 <?php
 
-namespace BiSight\DataSet\Model;
+namespace BiSight\Lattice\Model;
 
 use BiSight\Common\Model\Column;
 use RuntimeException;
 
-class DataSet
+class Lattice
 {
     private $name;
     

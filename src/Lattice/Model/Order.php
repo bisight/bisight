@@ -1,6 +1,6 @@
 <?php
 
-namespace BiSight\DataSet\Model;
+namespace BiSight\Lattice\Model;
 
 use BiSight\Common\Model\Column;
 

@@ -9,16 +9,16 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use LinkORB\Component\DatabaseManager\DatabaseManager;
 use BiSight\Common\Storage\ResultSetInterface;
 use BiSight\Common\Model\Parameter;
-use BiSight\DataSet\Model\DataSet;
-use BiSight\DataSet\Model\Join;
-use BiSight\DataSet\Model\Filter;
-use BiSight\DataSet\Model\Group;
-use BiSight\DataSet\Model\Order;
-use BiSight\DataSet\Model\Query as DataSetQuery;
-use BiSight\DataSet\Model\Report;
+use BiSight\Lattice\Model\Lattice;
+use BiSight\Lattice\Model\Join;
+use BiSight\Lattice\Model\Filter;
+use BiSight\Lattice\Model\Group;
+use BiSight\Lattice\Model\Order;
+use BiSight\Lattice\Model\Query as LatticeQuery;
+use BiSight\Lattice\Model\Report;
 use BiSight\DataWarehouse\Model\Column;
-use BiSight\DataSet\Loader\XmlLoader as XmlDataSetLoader;
-use BiSight\DataSet\Loader\XmlReportLoader as XmlDataSetReportLoader;
+use BiSight\Lattice\Loader\XmlLoader as XmlLatticeLoader;
+use BiSight\Lattice\Loader\XmlReportLoader as XmlLatticeReportLoader;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 use BiSight\Common\ExpressionUtils;
 use PHPExcel;
@@ -190,9 +190,9 @@ class PortalController
                     
                     if ($column->isExpression()) {
                         $rowData['utils'] = $utils;
-                        //print_r($rowData); echo $column->getExpression();
                         
                         $value = $language->evaluate($column->getExpression(), $rowData);
+                        //print_r($rowData); echo $column->getExpression();
                         //echo "VALUE: " . $value;
                     }
 
@@ -216,6 +216,7 @@ class PortalController
                 }
                 $o .= '</tr>' . "\n";
             }
+            //exit();
             $i++;
         }
 
@@ -288,7 +289,7 @@ class PortalController
         ));
     }
 
-    public function indexDataSetAction(Application $app, Request $request, $dwcode)
+    public function indexLatticeAction(Application $app, Request $request, $dwcode)
     {
         $dwrepo = $app->getDataWarehouseRepository();
         $dw = $dwrepo->getByCode($dwcode);
@@ -296,77 +297,77 @@ class PortalController
         $dm = new DatabaseManager();
         $pdo = $dm->getPdo($dbname);
 
-        $loader = new XmlDataSetLoader();
+        $loader = new XmlLatticeLoader();
 
-        $path = $app['bisight.datamodelpath'] . '/dataset';
-        $datasets = array();
+        $path = $app['bisight.datamodelpath'] . '/lattice';
+        $lattices = array();
         foreach (glob($path . "/*.xml") as $filename) {
-            $ds = $loader->loadFile($filename);
-            $ds->setName(str_replace('.xml', '', basename($filename)));
-            $datasets[] = $ds;
+            $lattice = $loader->loadFile($filename);
+            $lattice->setName(str_replace('.xml', '', basename($filename)));
+            $lattices[] = $lattice;
         }
 
         $data = array();
-        $data['datasets'] = $datasets;
+        $data['lattices'] = $lattices;
 
         return new Response($app['twig']->render(
-            'dataset/index.html.twig',
+            'lattice/index.html.twig',
             $data
         ));
     }
 
 
-    public function viewDataSetAction(Application $app, Request $request, $dwcode, $dscode)
+    public function viewLatticeAction(Application $app, Request $request, $dwcode, $latticecode)
     {
         $dwrepo = $app->getDataWarehouseRepository();
         $dw = $dwrepo->getByCode($dwcode);
         $storage = $dw->getStorage();
 
-        $filename = $app['bisight.datamodelpath'] . '/dataset/' . $dscode . '.xml';
-        $loader = new XmlDataSetLoader();
-        $ds = $loader->loadFile($filename);
-        $ds->setName(str_replace('.xml', '', basename($filename)));
+        $filename = $app['bisight.datamodelpath'] . '/lattice/' . $latticecode . '.xml';
+        $loader = new XmlLatticeLoader();
+        $lattice = $loader->loadFile($filename);
+        $lattice->setName(str_replace('.xml', '', basename($filename)));
 
-        $q = new DataSetQuery($ds);
-        foreach ($ds->getColumns() as $column) {
+        $q = new LatticeQuery($lattice);
+        foreach ($lattice->getColumns() as $column) {
             $q->addColumn($column);
         }
         
-        $res = $storage->dataSetQuery($q);
+        $res = $storage->latticeQuery($q);
         //print_r($res);
 
         $html = $this->getResultSetHtml($res, 0, 2000);
         $data['tablehtml'] = $html;
-        $data['dataset'] =  $ds;
+        $data['lattice'] =  $lattice;
         $data['rowcount'] =  $res->getRowCount();
         return new Response($app['twig']->render(
-            'dataset/view.html.twig',
+            'lattice/view.html.twig',
             $data
         ));
     }
 
-    public function downloadDataSetAction(Application $app, Request $request, $dwcode, $dscode)
+    public function downloadLatticeAction(Application $app, Request $request, $dwcode, $latticecode)
     {
         set_time_limit(0);
         $dwrepo = $app->getDataWarehouseRepository();
         $dw = $dwrepo->getByCode($dwcode);
         $storage = $dw->getStorage();
 
-        $filename = $app['bisight.datamodelpath'] . '/dataset/' . $dscode . '.xml';
-        $loader = new XmlDataSetLoader();
-        $ds = $loader->loadFile($filename);
-        $ds->setName(str_replace('.xml', '', basename($filename)));
+        $filename = $app['bisight.datamodelpath'] . '/lattice/' . $latticecode . '.xml';
+        $loader = new XmlLatticeLoader();
+        $lattice = $loader->loadFile($filename);
+        $lattice->setName(str_replace('.xml', '', basename($filename)));
 
-        $q = new DataSetQuery($ds);
-        foreach ($ds->getColumns() as $column) {
+        $q = new LatticeQuery($lattice);
+        foreach ($lattice->getColumns() as $column) {
             $q->addColumn($column);
         }
 
-        $res = $storage->dataSetQuery($q);
+        $res = $storage->latticeQuery($q);
         //print_r($res);
-        $excel = $this->getResultSetExcel($res, 'Dataset ' . $dscode);
+        $excel = $this->getResultSetExcel($res, 'Lattice ' . $latticecode);
         $format = $request->query->get('format');
-        return $this->getExcelResponse($excel, $dscode, $format);
+        return $this->getExcelResponse($excel, $latticecode, $format);
     }
 
     private function getHtmlWidget(Parameter $parameter, $value)
@@ -406,17 +407,17 @@ class PortalController
         return $o;
     }
 
-    public function viewReportAction(Application $app, Request $request, $dwcode, $reportname)
+    public function viewLatticeReportAction(Application $app, Request $request, $dwcode, $reportname)
     {
         set_time_limit(0);
         $dwrepo = $app->getDataWarehouseRepository();
         $dw = $dwrepo->getByCode($dwcode);
         $storage = $dw->getStorage();
 
-        $filename = $app['bisight.datamodelpath'] . '/report/' . $reportname . '.xml';
+        $filename = $app['bisight.datamodelpath'] . '/lattice-report/' . $reportname . '.xml';
 
-        $dsrepo = $app->getDataSetRepository();
-        $reportloader = new XmlDataSetReportLoader($dsrepo);
+        $latticeRepo = $app->getLatticeRepository();
+        $reportloader = new XmlLatticeReportLoader($latticeRepo);
 
         $report = $reportloader->loadFile($filename);
         $htmlwidgets = array();
@@ -436,12 +437,12 @@ class PortalController
             $values[$name] = $value;
         }
 
-        $ds = $report->getDataSet();
+        $ds = $report->getLattice();
 
         $parameters = array();
         $q = $report->getQuery();
 
-        $res = $storage->dataSetQuery($q, $values);
+        $res = $storage->latticeQuery($q, $values);
 
         $format = null;
         if ($request->request->has('download_csv')) {
@@ -464,12 +465,12 @@ class PortalController
         $data['report'] =  $report;
         $data['htmlwidgets'] = $htmlwidgets;
         return new Response($app['twig']->render(
-            'report/view.html.twig',
+            'latticereport/view.html.twig',
             $data
         ));
     }
 
-    public function indexReportAction(Application $app, Request $request, $dwcode)
+    public function indexLatticeReportAction(Application $app, Request $request, $dwcode)
     {
         $dwrepo = $app->getDataWarehouseRepository();
         $dw = $dwrepo->getByCode($dwcode);
@@ -478,12 +479,12 @@ class PortalController
         $pdo = $dm->getPdo($dbname);
 
 
-        $dsrepo = $app->getDataSetRepository();
+        $latticeRepo = $app->getLatticeRepository();
 
-        $loader = new XmlDataSetReportLoader($dsrepo);
+        $loader = new XmlLatticeReportLoader($latticeRepo);
 
-        $path = $app['bisight.datamodelpath'] . '/report';
-        $datasets = array();
+        $path = $app['bisight.datamodelpath'] . '/lattice-report';
+        $reports = array();
         foreach (glob($path . "/*.xml") as $filename) {
             $report = $loader->loadFile($filename);
             $report->setName(str_replace('.xml', '', basename($filename)));
@@ -494,7 +495,7 @@ class PortalController
         $data['reports'] = $reports;
 
         return new Response($app['twig']->render(
-            'report/index.html.twig',
+            'latticereport/index.html.twig',
             $data
         ));
     }

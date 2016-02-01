@@ -1,11 +1,11 @@
 <?php
 
-namespace BiSight\DataSet\Repository;
+namespace BiSight\Lattice\Repository;
 
-use BiSight\DataSet\Loader\XmlLoader;
+use BiSight\Lattice\Loader\XmlLoader;
 use InvalidArgumentException;
 
-class XmlDataSetRepository implements DataSetRepositoryInterface
+class XmlLatticeRepository implements LatticeRepositoryInterface
 {
     private $basepath;
     public function __construct(XmlLoader $loader, $basepath)
@@ -25,8 +25,8 @@ class XmlDataSetRepository implements DataSetRepositoryInterface
             throw new InvalidArgumentException("no name provided");
         }
         $filename = $this->basepath . '/' . $name . '.xml';
-        $dataset = $this->loader->loadFile($filename);
-        $dataset->setName($name);
-        return $dataset;
+        $lattice = $this->loader->loadFile($filename);
+        $lattice->setName($name);
+        return $lattice;
     }
 }

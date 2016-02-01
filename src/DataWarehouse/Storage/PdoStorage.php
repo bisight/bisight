@@ -5,8 +5,8 @@ namespace BiSight\DataWarehouse\Storage;
 use BiSight\Common\Storage\PdoResultSet;
 use BiSight\Common\Model\Column;
 use BiSight\DataWarehouse\Model\Table;
-use BiSight\DataSet\Model\Query;
-use BiSight\DataSet\Storage\PdoStorage as PdoDataSetStorage;
+use BiSight\Lattice\Model\Query;
+use BiSight\Lattice\Storage\PdoStorage as PdoLatticeStorage;
 use RuntimeException;
 use PDO;
 
@@ -55,10 +55,10 @@ class PdoStorage implements StorageInterface
         
     }
     
-    public function dataSetQuery(Query $q, $values = array())
+    public function latticeQuery(Query $q, $values = array())
     {
-        $dsStorage = new PdoDataSetStorage($this->pdo);
-        $result = $dsStorage->query($q, $values);
+        $latticeStorage = new PdoLatticeStorage($this->pdo);
+        $result = $latticeStorage->query($q, $values);
         return $result;
     }
 }

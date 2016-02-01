@@ -1,0 +1,14 @@
+{% extends "layout.html.twig" %}
+
+{% block content %}
+<h1>Lattices</h1>
+<p>These are the lattices stored in this datawarehouse</p>
+
+{% for lattice in lattices %}
+    <h4>
+        <i class="fa fa-sitemap"></i>
+        <a href="{{ path("lattice_view", { dwcode: datawarehouse.getCode(), latticecode: lattice.getName() })}}">{{ lattice.getName() }}</a>
+    </h4>
+{% endfor %}
+
+{% endblock %}

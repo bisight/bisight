@@ -16,10 +16,9 @@ use LinkORB\Component\DatabaseManager\DatabaseManager;
 use BiSight\DataWarehouse\Model\DataWarehouse;
 use BiSight\DataWarehouse\Repository\ArrayDataWarehouseRepository;
 use BiSight\Olap\Repository\StaticSchemaRepository;
-use BiSight\DataSet\Repository\XmlDataSetRepository;
-use BiSight\DataSet\Loader\XmlLoader as XmlDataSetLoader;
-use BiSight\DataSet\Loader\XmlReportLoader as XmlDataSetReportLoader;
-
+use BiSight\Lattice\Repository\XmlLatticeRepository;
+use BiSight\Lattice\Loader\XmlLoader as XmlLatticeLoader;
+use BiSight\Lattice\Loader\XmlReportLoader as XmlLatticeReportLoader;
 
 use RuntimeException;
 
@@ -67,10 +66,10 @@ class Application extends SilexApplication
         
         $this->schemaRepository = new StaticSchemaRepository();
         
-        $loader = new XmlDataSetLoader();
-        $this->dataSetRepository = new XmlDataSetRepository(
+        $loader = new XmlLatticeLoader();
+        $this->latticeRepository = new XmlLatticeRepository(
             $loader,
-            $this['bisight.datamodelpath'] . '/dataset'
+            $this['bisight.datamodelpath'] . '/lattice'
         );
         
     }
@@ -136,8 +135,8 @@ class Application extends SilexApplication
         return $this->schemaRepository;
     }
     
-    public function getDataSetRepository()
+    public function getLatticeRepository()
     {
-        return $this->dataSetRepository;
+        return $this->latticeRepository;
     }
 }
