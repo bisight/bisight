@@ -19,8 +19,6 @@ use BiSight\Lattice\Model\Report;
 use BiSight\Core\Model\Column;
 use BiSight\Lattice\Loader\XmlLoader as XmlLatticeLoader;
 use BiSight\Lattice\Loader\XmlReportLoader as XmlLatticeReportLoader;
-use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
-use BiSight\Core\Utils\ExpressionUtils;
 use PHPExcel;
 use PHPExcel_IOFactory;
 use RuntimeException;
@@ -53,22 +51,6 @@ class PortalController
 
         return new Response($app['twig']->render(
             'warehouse.html.twig',
-            $data
-        ));
-    }
-
-    public function tableIndexAction(Application $app, Request $request, $accountName, $warehouseName)
-    {
-        $warehouseRepo = $app->getRepository('warehouse');
-        $warehouse = $warehouseRepo->findOneByAccountNameAndName($accountName, $warehouseName);
-        $connection = $app->getWarehouseDriver($warehouse);
-        $tables = $connection->getTables();
-
-        $data = array();
-        $data['tables'] = $tables;
-
-        return new Response($app['twig']->render(
-            'tables/index.html.twig',
             $data
         ));
     }
@@ -141,132 +123,6 @@ class PortalController
         $response->headers->set('Content-Disposition', $d);
         return $response;
     }
-
-    private function getResultSetHtml(ResultSetInterface $res, $offset = 0, $limit = null)
-    {
-        if (!$limit) {
-            $limit = 10000; // default
-        }
-        $columns = $res->getColumns();
-
-        $language = new ExpressionLanguage();
-        $utils = new ExpressionUtils();
-
-        $i = 0;
-        $o = '';
-        $o .= '<div class="table-responsive">';
-        $o .= '<table class="table table-striped table-hover table-condensed">';
-        $o .= '<thead><tr>';
-        foreach ($columns as $column) {
-            $o .= "<th";
-            if ($column->getType() == 'money') {
-                $o .= " style=\"text-align: right\"";
-            }
-            $o .= ">" . $column->getLabel() . "</th>";
-            $i++;
-        }
-        $o .= '</tr></thead>';
-        $i = 0;
-        while ($row = $res->getRow()) {
-            if ($i < $limit && $i >= $offset) {
-                $o .= '<tr>';
-                $rowData = array();
-                foreach ($row as $key => $value) {
-                    $rowData[$key]=(int)$value;
-                }
-                
-                foreach ($row as $key => $value) {
-                    $column = null;
-                    foreach ($columns as $c) {
-                        if ($c->getAlias() == $key) {
-                            $column = $c;
-                        }
-                    }
-                    
-                    if ($column->isExpression()) {
-                        $rowData['utils'] = $utils;
-                        
-                        $value = $language->evaluate($column->getExpression(), $rowData);
-                        //print_r($rowData); echo $column->getExpression();
-                        //echo "VALUE: " . $value;
-                    }
-
-                    $o .= "<td";
-
-                    if ($column->getType() == 'money') {
-                        $o .= " style=\"text-align: right\"";
-                    }
-
-                    $o .= ">";
-
-                    if ($column->getType() == 'money') {
-                        $o .= "&euro; ";
-                        if ($value=='') {
-                            $value = 0.00;
-                        }
-                    }
-
-                    $o .= nl2br($value);
-                    $o .= "</td>";
-                }
-                $o .= '</tr>' . "\n";
-            }
-            //exit();
-            $i++;
-        }
-
-        $o .= '</table>';
-        $o .= '</div>';
-        return $o;
-    }
-
-    public function tableViewAction(Application $app, Request $request, $accountName, $warehouseName, $tablename)
-    {
-        $warehouseRepo = $app->getRepository('warehouse');
-        $warehouse = $warehouseRepo->findOneByAccountNameAndName($accountName, $warehouseName);
-        $driver = $app->getWarehouseDriver($warehouse);
-
-        $data = array();
-        $data['tablename'] = $tablename;
-
-        $res = $driver->getResultSetByTablename($tablename);
-
-        $limit = null;
-        if ($request->query->has('limit')) {
-            $limit = $request->query->get('limit');
-        }
-
-        $offset = null;
-        if ($request->query->has('offset')) {
-            $limit = $request->query->get('offset');
-        }
-
-        $data['tablehtml'] = $this->getResultSetHtml($res, $offset, $limit);
-        $data['rowcount'] =  $res->getRowCount();
-
-        return new Response($app['twig']->render(
-            'tables/view.html.twig',
-            $data
-        ));
-    }
-
-    public function tableDownloadAction(Application $app, Request $request, $accountName, $warehouseName, $tablename)
-    {
-        set_time_limit(0);
-        $warehouseRepo = $app->getRepository('warehouse');
-        $warehouse = $warehouseRepo->findOneByAccountNameAndName($accountName, $warehouseName);
-        $driver = $app->getWarehouseDriver($warehouse);
-
-        $data = array();
-        $data['tablename'] = $tablename;
-
-        $res = $driver->getResultSetByTablename($tablename);
-
-        $excel = $this->getResultSetExcel($res, 'Table ' . $tablename);
-        $format = $request->query->get('format');
-        return $this->getExcelResponse($excel, $tablename, $format);
-    }
-
 
     public function viewOlapSchemaAction(Application $app, Request $request, $accountName, $warehouseName)
     {

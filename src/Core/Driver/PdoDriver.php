@@ -35,7 +35,7 @@ class PdoDriver implements DriverInterface
         return $tables;
     }
     
-    public function getResultSetByTablename($tablename)
+    public function getResultSetByTablename($tablename, Table $table)
     {
         $sql = "SELECT * FROM " . $tablename;
         $stmt = $this->pdo->prepare($sql);
@@ -45,8 +45,13 @@ class PdoDriver implements DriverInterface
         $columns = array();
         while ($i < $stmt->columnCount()) {
             $meta = $stmt->getColumnMeta($i);
-            $column = new Column();
-            $column->setName((string)$meta['name']);
+            $columnName = (string)$meta['name'];
+            if ($table->hasColumn($columnName)) {
+                $column = $table->getColumn($columnName);
+            } else {
+                $column = new Column();
+                $column->setName((string)$meta['name']);
+            }
             $columns[] = $column;
             $i++;
         }

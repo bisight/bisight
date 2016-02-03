@@ -8,15 +8,15 @@ warehouse:
 
 table_index:
     pattern: /{accountName}/{warehouseName}/tables
-    defaults:  { _controller: BiSight\Portal\Controller\PortalController::tableIndexAction }
+    defaults:  { _controller: BiSight\Portal\Controller\TableController::indexAction }
 
 table_view:
-    pattern: /{accountName}/{warehouseName}/tables/{tablename}
-    defaults:  { _controller: BiSight\Portal\Controller\PortalController::tableViewAction }
+    pattern: /{accountName}/{warehouseName}/tables/{tableName}
+    defaults:  { _controller: BiSight\Portal\Controller\TableController::viewAction }
 
 table_download:
-    pattern: /{accountName}/{warehouseName}/tables/{tablename}/download
-    defaults:  { _controller: BiSight\Portal\Controller\PortalController::tableDownloadAction }
+    pattern: /{accountName}/{warehouseName}/tables/{tableName}/download
+    defaults:  { _controller: BiSight\Portal\Controller\TableController::downloadAction }
 
 olapschema_view:
     pattern: /{accountName}/{warehouseName}/olapschema

@@ -55,7 +55,29 @@
         td, th {
           border-right: 1px solid #f0f0f0 !important;
           border-left: 1px solid #e0e0e0 !important;
-
+        }
+        
+        th {
+            cursor: default;
+            white-space: nowrap;
+        }
+        
+        th.column-undefined {
+            color: #a0a0a0;
+        }
+        td.column-undefined {
+            color: #a0a0a0;
+        }
+        
+        td.column-type-money, th.column-type-money {
+            text-align: right;
+        }
+        
+        td.column-type-uuid {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            width: 50px;
         }
 
         </style>

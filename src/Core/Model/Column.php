@@ -6,6 +6,13 @@ class Column
 {
     private $name;
     
+    public function __construct($name = null)
+    {
+        if ($name) {
+            $this->name = $name;
+        }
+    }
+    
     public function getName()
     {
         return $this->name;
@@ -74,7 +81,7 @@ class Column
         $this->aggregator = $aggregator;
     }
     
-    private $type;
+    private $type = 'auto';
     
     public function getType()
     {
@@ -129,4 +136,18 @@ class Column
         }
         return false;
     }
+
+    protected $defined = false;
+
+    public function setDefined($defined)
+    {
+        $this->defined = $defined;
+    }
+    
+    public function isDefined()
+    {
+        return $this->defined;
+    }
+
+
 }
