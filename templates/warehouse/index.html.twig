@@ -36,7 +36,7 @@
             <h3>Data Warehouses</h3>
             <ul class="list-unstyled">
                 {% for warehouse in warehouses %}
-                <li>{{ warehouse.getAccountName() }} / <a href="{{ path("warehouse", { accountName: warehouse.getAccountName(), warehouseName: warehouse.getName() })}}">{{ warehouse.getName() }}</a></li>
+                <li>{{ warehouse.getAccountName() }} / <a href="{{ path("warehouse_view", { accountName: warehouse.getAccountName(), warehouseName: warehouse.getName() })}}">{{ warehouse.getName() }}</a></li>
                 {% endfor %}
             </ul>
 

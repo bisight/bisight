@@ -1,10 +1,10 @@
-index:
+warehouse_index:
     pattern: /
-    defaults:  { _controller: BiSight\Portal\Controller\PortalController::indexAction }
+    defaults:  { _controller: BiSight\Portal\Controller\WarehouseController::indexAction }
 
-warehouse:
+warehouse_view:
     pattern: /{accountName}/{warehouseName}
-    defaults:  { _controller: BiSight\Portal\Controller\PortalController::viewWarehouseAction }
+    defaults:  { _controller: BiSight\Portal\Controller\WarehouseController::viewAction }
 
 table_index:
     pattern: /{accountName}/{warehouseName}/tables
@@ -20,24 +20,24 @@ table_download:
 
 olapschema_view:
     pattern: /{accountName}/{warehouseName}/olapschema
-    defaults:  { _controller: BiSight\Portal\Controller\PortalController::viewOlapSchemaAction }
+    defaults:  { _controller: BiSight\Portal\Controller\OlapController::viewSchemaAction }
 
 lattice_index:
     pattern: /{accountName}/{warehouseName}/lattices
-    defaults:  { _controller: BiSight\Portal\Controller\PortalController::indexLatticeAction }
+    defaults:  { _controller: BiSight\Portal\Controller\LatticeController::indexAction }
 
 lattice_view:
     pattern: /{accountName}/{warehouseName}/lattices/{latticecode}
-    defaults:  { _controller: BiSight\Portal\Controller\PortalController::viewLatticeAction }
+    defaults:  { _controller: BiSight\Portal\Controller\LatticeController::viewAction }
 
 lattice_download:
     pattern: /{accountName}/{warehouseName}/lattices/{latticecode}/download
-    defaults:  { _controller: BiSight\Portal\Controller\PortalController::downloadLatticeAction }
+    defaults:  { _controller: BiSight\Portal\Controller\LatticeController::downloadAction }
 
 lattice_report_index:
     pattern: /{accountName}/{warehouseName}/latticereports
-    defaults:  { _controller: BiSight\Portal\Controller\PortalController::indexLatticeReportAction }
+    defaults:  { _controller: BiSight\Portal\Controller\LatticeController::indexLatticeReportAction }
 
 lattice_report_view:
     pattern: /{accountName}/{warehouseName}/latticereport/{reportname}
-    defaults:  { _controller: BiSight\Portal\Controller\PortalController::viewLatticeReportAction }
+    defaults:  { _controller: BiSight\Portal\Controller\LatticeController::viewLatticeReportAction }

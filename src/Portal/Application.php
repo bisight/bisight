@@ -37,10 +37,16 @@ class Application extends BaseWebApplication implements FrameworkApplicationInte
             $loader,
             $this['bisight']['datamodel_path'] . '/lattice'
         );
+        $this->schemaRepository = new StaticSchemaRepository();
     }
 
     private $schemaRepository;
     private $latticeRepository;
+    
+    public function getSchemaRepository()
+    {
+        return $this->schemaRepository;
+    }
     
     public function getLatticeRepository()
     {

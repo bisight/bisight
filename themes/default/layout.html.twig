@@ -95,11 +95,11 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
               </button>
-              <a class="navbar-brand" href="{{ path("index") }}"><i class="fa fa-bar-chart"></i> <span class="accent">BI</span>Sight <small class="accent">Portal</small></a>
+              <a class="navbar-brand" href="{{ path("warehouse_index") }}"><i class="fa fa-bar-chart"></i> <span class="accent">BI</span>Sight <small class="accent">Portal</small></a>
             </div>
             <div id="navbar" class="navbar-collapse collapse">
               <ul class="nav navbar-nav">
-                <li><a href="{{ path("warehouse")}}"><i class="fa fa-database"></i> {{ warehouse.getName() }}</a></li>
+                <li><a href="{{ path("warehouse_view")}}"><i class="fa fa-database"></i> {{ warehouse.getName() }}</a></li>
                 <li><a href="{{ path("table_index")}}"><i class="fa fa-table"></i> Tables</a></li>
                 <li><a href="{{ path("lattice_index")}}"><i class="fa fa-sitemap"></i> Lattices</a></li>
                 <li><a href="{{ path("lattice_report_index")}}"><i class="fa fa-bar-chart"></i> Lattice Reports</a></li>
