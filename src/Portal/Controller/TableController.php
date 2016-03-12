@@ -13,6 +13,8 @@ use BiSight\Core\Model\Table;
 use BiSight\Core\Model\Column;
 use BiSight\Core\TableLoader\XmlTableLoader;
 use BiSight\Core\ResultSetRenderer\HtmlResultSetRenderer;
+use BiSight\Core\ResultSetRenderer\ExcelResultSetRenderer;
+use BiSight\Core\Utils\ExcelUtils;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 use BiSight\Core\Utils\ExpressionUtils;
 use PHPExcel;
@@ -80,7 +82,7 @@ class TableController
         ));
     }
 
-    public function downloadAction(Application $app, Request $request, $accountName, $warehouseName, $tablename)
+    public function downloadAction(Application $app, Request $request, $accountName, $warehouseName, $tableName)
     {
         set_time_limit(0);
         $warehouseRepo = $app->getRepository('warehouse');
@@ -88,13 +90,26 @@ class TableController
         $driver = $app->getWarehouseDriver($warehouse);
 
         $data = array();
-        $data['tablename'] = $tablename;
+        $data['tablename'] = $tableName;
+        
+        $path = $app->getWarehouseDataModelPath($warehouse) . '/table';
 
-        $res = $driver->getResultSetByTablename($tablename);
+        $loader = new XmlTableLoader();
+        $filename = $path . '/' . $tableName . '.xml';
+        if (file_exists($filename)) {
+            $table = $loader->loadFile($tableName, $filename);
+        } else {
+            $table = new Table($tableName);
+        }
 
-        $excel = $this->getResultSetExcel($res, 'Table ' . $tablename);
+        $res = $driver->getResultSetByTablename($tableName, $table);
+
+        $renderer = new ExcelResultSetRenderer();
+        $offset = 0;
+        $limit = 10000;
+        $excel = $renderer->render($res, $offset, $limit);
+
         $format = $request->query->get('format');
-        return $this->getExcelResponse($excel, $tablename, $format);
+        return ExcelUtils::getExcelResponse($excel, $tableName, $format);
     }
-
 }

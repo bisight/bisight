@@ -10,10 +10,12 @@ use PHPExcel_IOFactory;
 
 class ExcelResultSetRenderer
 {
-    public function render(ResultSetInterface $res, $setname)
+    public function render(ResultSetInterface $res, $offset = 0, $limit = null)
     {
         
         $excel = new PHPExcel();
+        
+        $setname = 'export';
 
         $properties = $excel->getProperties();
         $properties->setCreator("BiSight Portal");
