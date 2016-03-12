@@ -28,6 +28,7 @@ class XmlTableLoader
             $column = new Column((string)$columnNode['name']);
             $column->setLabel((string)$columnNode['title']);
             $column->setType((string)$columnNode['type']);
+            $column->setAggregator((string)$columnNode['aggregator']);
             $column->setDescription((string)$columnNode['description']);
             $column->setDefined(true);
             $table->setColumn($column);
