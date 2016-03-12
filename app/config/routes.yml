@@ -14,6 +14,10 @@ table_view:
     pattern: /{accountName}/{warehouseName}/tables/{tableName}
     defaults:  { _controller: BiSight\Portal\Controller\TableController::viewAction }
 
+table_description:
+    pattern: /{accountName}/{warehouseName}/tables/{tableName}/description
+    defaults:  { _controller: BiSight\Portal\Controller\TableController::descriptionAction }
+
 table_download:
     pattern: /{accountName}/{warehouseName}/tables/{tableName}/download
     defaults:  { _controller: BiSight\Portal\Controller\TableController::downloadAction }

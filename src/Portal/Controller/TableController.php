@@ -11,7 +11,6 @@ use BiSight\Core\Driver\ResultSetInterface;
 use BiSight\Core\Model\Parameter;
 use BiSight\Core\Model\Table;
 use BiSight\Core\Model\Column;
-use BiSight\Core\TableLoader\XmlTableLoader;
 use BiSight\Core\ResultSetRenderer\HtmlResultSetRenderer;
 use BiSight\Core\ResultSetRenderer\ExcelResultSetRenderer;
 use BiSight\Core\Utils\ExcelUtils;
@@ -48,15 +47,7 @@ class TableController
 
         $data = array();
         
-        $path = $app->getWarehouseDataModelPath($warehouse) . '/table';
-
-        $loader = new XmlTableLoader();
-        $filename = $path . '/' . $tableName . '.xml';
-        if (file_exists($filename)) {
-            $table = $loader->loadFile($tableName, $filename);
-        } else {
-            $table = new Table($tableName);
-        }
+        $table = $app->getTable($warehouse, $tableName);
 
         $res = $driver->getResultSetByTablename($tableName, $table);
 
@@ -92,15 +83,7 @@ class TableController
         $data = array();
         $data['tablename'] = $tableName;
         
-        $path = $app->getWarehouseDataModelPath($warehouse) . '/table';
-
-        $loader = new XmlTableLoader();
-        $filename = $path . '/' . $tableName . '.xml';
-        if (file_exists($filename)) {
-            $table = $loader->loadFile($tableName, $filename);
-        } else {
-            $table = new Table($tableName);
-        }
+        $table = $app->getTable($warehouse, $tableName);
 
         $res = $driver->getResultSetByTablename($tableName, $table);
 
@@ -111,5 +94,23 @@ class TableController
 
         $format = $request->query->get('format');
         return ExcelUtils::getExcelResponse($excel, $tableName, $format);
+    }
+
+    public function descriptionAction(Application $app, Request $request, $accountName, $warehouseName, $tableName)
+    {
+        $warehouseRepo = $app->getRepository('warehouse');
+        $warehouse = $warehouseRepo->findOneByAccountNameAndName($accountName, $warehouseName);
+
+        $data = array();
+        $data['tablename'] = $tableName;
+        
+        $table = $app->getTable($warehouse, $tableName);
+
+        $data['table'] = $table;
+    
+        return new Response($app['twig']->render(
+            'tables/description.html.twig',
+            $data
+        ));
     }
 }

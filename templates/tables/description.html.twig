@@ -1,0 +1,28 @@
+{% extends "@Theme/layout.html.twig" %}
+
+{% block content %}
+<div style="float: right; margin-top: 20px;">
+    <a href="{{ path("table_view", { tableName: table.getName() })}}" class="btn btn-default"><i class="fa fa-back"></i> Back</a>
+</div>
+<h1><i class="fa fa-table"></i> {{ table.getTitle() }} <small>{{table.getName}}</small></h1>
+<p class="lead">{{table.getDescription() }}</p>
+
+<table class="table table-striped table-hover table-condensed">
+    <tr>
+        <th style="width: 100px;">Name</th>
+        <th style="width: 100px;">Label</th>
+        <th style="width: 100px;">Type</th>
+        <th style="width: 100px;">Aggregator</th>
+        <th>Description</th>
+    </tr>
+{% for column in table.getColumns() %}
+    <tr>
+        <td>{{ column.getName() }}</td>
+        <td>{{ column.getLabel() }}</td>
+        <td>{{ column.getType() }}</td>
+        <td>{{ column.getAggregator() }}</td>
+        <td>{{ column.getDescription() }}</td>
+    </tr>
+{% endfor %}
+</table>
+{% endblock %}

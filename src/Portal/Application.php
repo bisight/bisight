@@ -15,6 +15,7 @@ use Symfony\Component\Yaml\Parser as YamlParser;
 use Symfony\Component\Security\Core\Encoder\PlaintextPasswordEncoder;
 use LinkORB\Component\DatabaseManager\DatabaseManager;
 use BiSight\Core\Driver\PdoDriver;
+use BiSight\Core\TableLoader\XmlTableLoader;
 use BiSight\Portal\Model\Warehouse;
 use BiSight\DataWarehouse\Model\DataWarehouse;
 use BiSight\DataWarehouse\Repository\ArrayDataWarehouseRepository;
@@ -70,5 +71,19 @@ class Application extends BaseWebApplication implements FrameworkApplicationInte
     protected function getRepositoryPath()
     {
         return sprintf('%s/src/Portal/Repository', $this->getRootPath());
+    }
+    
+    public function getTable(Warehouse $warehouse, $tableName)
+    {
+        $path = $this->getWarehouseDataModelPath($warehouse) . '/table';
+
+        $loader = new XmlTableLoader();
+        $filename = $path . '/' . $tableName . '.xml';
+        if (file_exists($filename)) {
+            $table = $loader->loadFile($tableName, $filename);
+        } else {
+            $table = new Table($tableName);
+        }
+        return $table;
     }
 }

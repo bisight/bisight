@@ -2,9 +2,10 @@
 
 {% block content %}
 <div style="float: right; margin-top: 20px;">
-    <a href="{{ path("table_download", { tableName: table.getName() })}}?format=csv" class="btn btn-default"><i class="fa fa fa-file-text-o"></i> CSV</a>
-    <a href="{{ path("table_download", { tableName: table.getName() })}}?format=html" class="btn btn-default"><i class="fa fa fa-file-code-o"></i> HTML</a>
-    <a href="{{ path("table_download", { tableName: table.getName() })}}?format=xlsx" class="btn btn-default"><i class="fa fa fa-file-excel-o"></i> Excel</a>
+    <a href="{{ path("table_description", { tableName: table.getName() })}}" class="btn btn-default"><i class="fa fa-info-circle"></i> Description</a>
+    <a href="{{ path("table_download", { tableName: table.getName() })}}?format=csv" class="btn btn-default"><i class="fa fa-file-text-o"></i> CSV</a>
+    <a href="{{ path("table_download", { tableName: table.getName() })}}?format=html" class="btn btn-default"><i class="fa fa-file-code-o"></i> HTML</a>
+    <a href="{{ path("table_download", { tableName: table.getName() })}}?format=xlsx" class="btn btn-default"><i class="fa fa-file-excel-o"></i> Excel</a>
 </div>
 <h1><i class="fa fa-table"></i> {{ table.getTitle() }} <small>{{table.getName}}</small></h1>
 <p class="lead">{{table.getDescription() }}</p>
