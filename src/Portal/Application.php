@@ -14,6 +14,10 @@ use Symfony\Component\Routing\Loader\YamlFileLoader;
 use Symfony\Component\Yaml\Parser as YamlParser;
 use Symfony\Component\Security\Core\Encoder\PlaintextPasswordEncoder;
 use LinkORB\Component\DatabaseManager\DatabaseManager;
+use BiSight\Core\Model\Parameter;
+use BiSight\Core\Model\Option;
+use BiSight\Table\Model\Table;
+use BiSight\Table\QueryLoader\XmlQueryLoader;
 use BiSight\Core\Driver\PdoDriver;
 use BiSight\Core\TableLoader\XmlTableLoader;
 use BiSight\Portal\Model\Warehouse;
@@ -85,5 +89,65 @@ class Application extends BaseWebApplication implements FrameworkApplicationInte
             $table = new Table($tableName);
         }
         return $table;
+    }
+    
+    public function getWarehouseQueries(Warehouse $warehouse)
+    {
+        $queries = [];
+        $loader = new XmlQueryLoader();
+        $path = $this->getWarehouseDataModelPath($warehouse) . '/query';
+        $files = glob($path . '/*.xml');
+        foreach ($files as $filename) {
+            $queries[] = $loader->loadFile($filename, $path . '/../table');
+        }
+        return $queries;
+    }
+    
+    public function getHtmlWidget(Parameter $parameter, $value)
+    {
+        switch ($parameter->getType()) {
+            case 'text':
+                $o = '<input ';
+                //$o .= ' required="required"';
+                $o .= ' class="form-control"';
+                $o .= ' type="text"';
+                $o .= ' name="PARAMETER_' . $parameter->getName() . '"';
+
+                $htmlvalue = $value;
+
+                $o .= ' value="' . $htmlvalue . '"/>';
+                break;
+            case 'date':
+                $o = '<input ';
+                $o .= ' required="required"';
+                $o .= ' class="form-control"';
+                $o .= ' type="date"';
+                $o .= ' name="PARAMETER_' . $parameter->getName() . '"';
+
+                $htmlvalue = substr($value, 0, 4) . '-' . substr($value, 4, 2) . '-' . substr($value, 6, 2);
+
+                $o .= ' value="' . $htmlvalue . '"/>';
+                break;
+            case 'select':
+                $o = '<select ';
+                $o .= ' required="required"';
+                $o .= ' class="form-control"';
+                $o .= ' name="PARAMETER_' . $parameter->getName() . '"';
+                $o .= '>';
+                foreach ($parameter->getOptions() as $option) {
+                    $o .= '<option value="' . $option->getValue() . '"';
+                    if ($value == $option->getValue()) {
+                        $o .= ' selected="selected"';
+                    }
+                    $o .= '>' . $option->getLabel() . '</option>';
+                }
+                $o .= '</select>';
+
+                break;
+            default:
+                throw new RuntimeException("Unsupported parameter type: ". $parameter->getType());
+        }
+
+        return $o;
     }
 }

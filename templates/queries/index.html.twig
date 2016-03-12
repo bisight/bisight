@@ -1,0 +1,14 @@
+{% extends "@Theme/layout.html.twig" %}
+
+{% block content %}
+<h1>Queries</h1>
+<p>These are the available queries in this data warehouse</p>
+
+{% for query in queries %}
+    <h4>
+        <i class="fa fa-filter"></i>
+        <a href="{{ path("query_view", { queryName: query.getName() })}}">{{ query.getName() }}: </a> {{ query.getTitle() }}
+    </h4>
+{% endfor %}
+
+{% endblock %}

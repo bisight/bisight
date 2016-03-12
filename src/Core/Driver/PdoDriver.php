@@ -4,8 +4,10 @@ namespace BiSight\Core\Driver;
 
 use BiSight\Core\Driver\PdoResultSet;
 use BiSight\Core\Model\Column;
-use BiSight\Core\Model\Table;
-use BiSight\Lattice\Model\Query;
+use BiSight\Table\Model\Table;
+use BiSight\Table\Model\Query as TableQuery;
+use BiSight\Table\Storage\PdoStorage as PdoTableStorage;
+use BiSight\Lattice\Model\Query as LatticeQuery;
 use BiSight\Lattice\Storage\PdoStorage as PdoLatticeStorage;
 use RuntimeException;
 use PDO;
@@ -60,10 +62,17 @@ class PdoDriver implements DriverInterface
         
     }
     
-    public function latticeQuery(Query $q, $values = array())
+    public function latticeQuery(LatticeQuery $q, $values = array())
     {
         $latticeStorage = new PdoLatticeStorage($this->pdo);
         $result = $latticeStorage->query($q, $values);
+        return $result;
+    }
+    
+    public function tableQuery(TableQuery $q)
+    {
+        $tableStorage = new PdoTableStorage($this->pdo);
+        $result = $tableStorage->query($q);
         return $result;
     }
 }

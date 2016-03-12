@@ -2,7 +2,7 @@
 
 namespace BiSight\Core\TableLoader;
 
-use BiSight\Core\Model\Table;
+use BiSight\Table\Model\Table;
 use BiSight\Core\Model\Column;
 use SimpleXmlElement;
 

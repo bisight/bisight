@@ -22,6 +22,14 @@ table_download:
     pattern: /{accountName}/{warehouseName}/tables/{tableName}/download
     defaults:  { _controller: BiSight\Portal\Controller\TableController::downloadAction }
 
+query_index:
+    pattern: /{accountName}/{warehouseName}/queries
+    defaults:  { _controller: BiSight\Portal\Controller\QueryController::indexAction }
+
+query_view:
+    pattern: /{accountName}/{warehouseName}/queries/{queryName}
+    defaults:  { _controller: BiSight\Portal\Controller\QueryController::viewAction }
+
 olapschema_view:
     pattern: /{accountName}/{warehouseName}/olapschema
     defaults:  { _controller: BiSight\Portal\Controller\OlapController::viewSchemaAction }

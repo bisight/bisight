@@ -25,101 +25,80 @@ use PHPExcel_IOFactory;
 use RuntimeException;
 use PDO;
 
-class TableController
+class QueryController
 {
     public function indexAction(Application $app, Request $request, $accountName, $warehouseName)
     {
         $warehouseRepo = $app->getRepository('warehouse');
         $warehouse = $warehouseRepo->findOneByAccountNameAndName($accountName, $warehouseName);
         $connection = $app->getWarehouseDriver($warehouse);
-        $tables = $connection->getTables();
+        $queries = $app->getWarehouseQueries($warehouse);
 
         $data = array();
-        $data['tables'] = $tables;
+        $data['queries'] = $queries;
 
         return new Response($app['twig']->render(
-            'tables/index.html.twig',
+            'queries/index.html.twig',
             $data
         ));
     }
-
-    public function viewAction(Application $app, Request $request, $accountName, $warehouseName, $tableName)
+    
+    public function viewAction(Application $app, Request $request, $accountName, $warehouseName, $queryName)
     {
         $warehouseRepo = $app->getRepository('warehouse');
         $warehouse = $warehouseRepo->findOneByAccountNameAndName($accountName, $warehouseName);
         $driver = $app->getWarehouseDriver($warehouse);
+        $queries = $app->getWarehouseQueries($warehouse);
+        $query = null;
+        foreach ($queries as $q) {
+            if ($q->getName()==$queryName) {
+                $query = $q;
+            }
+        }
+        if (!$query) {
+            throw new RuntimeException("Query not found: " . $queryName);
+        }
 
-        $data = array();
-        
-        $table = $app->getTable($warehouse, $tableName);
-        
-        
-        $query = new Query($table);
+        $htmlwidgets = array();
+        $values = array();
+        foreach ($query->getParameters() as $parameter) {
+            $name = $parameter->getName();
+            $value = $parameter->getDefault();
+            if ($request->request->has('PARAMETER_' . $name)) {
+                $value = $request->request->get('PARAMETER_' . $name);
+            }
+            if ($parameter->getType()=='date') {
+                $value = str_replace('-', '', $value);
+            }
+
+            $html = $app->getHtmlWidget($parameter, $value);
+            $htmlwidgets[$name] = $html;
+            $values[$name] = $value;
+        }
         
         $res = $driver->tableQuery($query);
-    
-        //$res = $driver->getResultSetByTablename($tableName, $table);
 
         $limit = null;
+        $offset = null;
+        /*
         if ($request->query->has('limit')) {
             $limit = $request->query->get('limit');
         }
 
-        $offset = null;
         if ($request->query->has('offset')) {
             $limit = $request->query->get('offset');
         }
+        */
 
         $renderer = new HtmlResultSetRenderer();
         
-        $data['table'] = $table;
+        $data['query'] = $query;
         $data['tablehtml'] = $renderer->render($res, $offset, $limit);
         $data['rowcount'] =  $res->getRowCount();
-        $data['htmlwidgets'] = $htmlwidgets;
-        
+        $data['htmlwidgets'] =  $htmlwidgets;
+
         return new Response($app['twig']->render(
-            'tables/view.html.twig',
-            $data
-        ));
-    }
-
-    public function downloadAction(Application $app, Request $request, $accountName, $warehouseName, $tableName)
-    {
-        set_time_limit(0);
-        $warehouseRepo = $app->getRepository('warehouse');
-        $warehouse = $warehouseRepo->findOneByAccountNameAndName($accountName, $warehouseName);
-        $driver = $app->getWarehouseDriver($warehouse);
-
-        $data = array();
-        $data['tablename'] = $tableName;
-        
-        $table = $app->getTable($warehouse, $tableName);
-
-        $res = $driver->getResultSetByTablename($tableName, $table);
-
-        $renderer = new ExcelResultSetRenderer();
-        $offset = 0;
-        $limit = 10000;
-        $excel = $renderer->render($res, $offset, $limit);
-
-        $format = $request->query->get('format');
-        return ExcelUtils::getExcelResponse($excel, $tableName, $format);
-    }
-
-    public function descriptionAction(Application $app, Request $request, $accountName, $warehouseName, $tableName)
-    {
-        $warehouseRepo = $app->getRepository('warehouse');
-        $warehouse = $warehouseRepo->findOneByAccountNameAndName($accountName, $warehouseName);
-
-        $data = array();
-        $data['tablename'] = $tableName;
-        
-        $table = $app->getTable($warehouse, $tableName);
-
-        $data['table'] = $table;
-    
-        return new Response($app['twig']->render(
-            'tables/description.html.twig',
+            'queries/view.html.twig',
             $data
         ));
     }

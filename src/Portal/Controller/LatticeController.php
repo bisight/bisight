@@ -134,7 +134,7 @@ class LatticeController
                 $value = str_replace('-', '', $value);
             }
 
-            $html = $this->getHtmlWidget($parameter, $value);
+            $html = $app->getHtmlWidget($parameter, $value);
             $htmlwidgets[$name] = $html;
             $values[$name] = $value;
         }
@@ -199,42 +199,5 @@ class LatticeController
             'latticereport/index.html.twig',
             $data
         ));
-    }
-
-    private function getHtmlWidget(Parameter $parameter, $value)
-    {
-        switch ($parameter->getType()) {
-            case 'date':
-                $o = '<input ';
-                $o .= ' required="required"';
-                $o .= ' class="form-control"';
-                $o .= ' type="date"';
-                $o .= ' name="PARAMETER_' . $parameter->getName() . '"';
-
-                $htmlvalue = substr($value, 0, 4) . '-' . substr($value, 4, 2) . '-' . substr($value, 6, 2);
-
-                $o .= ' value="' . $htmlvalue . '"/>';
-                break;
-            case 'select':
-                $o = '<select ';
-                $o .= ' required="required"';
-                $o .= ' class="form-control"';
-                $o .= ' name="PARAMETER_' . $parameter->getName() . '"';
-                $o .= '>';
-                foreach ($parameter->getOptions() as $option) {
-                    $o .= '<option value="' . $option->getValue() . '"';
-                    if ($value == $option->getValue()) {
-                        $o .= ' selected="selected"';
-                    }
-                    $o .= '>' . $option->getLabel() . '</option>';
-                }
-                $o .= '</select>';
-
-                break;
-            default:
-                throw new RuntimeException("Unsupported parameter type: ". $parameter->getType());
-        }
-
-        return $o;
     }
 }

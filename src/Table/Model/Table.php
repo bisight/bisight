@@ -1,6 +1,8 @@
 <?php
 
-namespace BiSight\Core\Model;
+namespace BiSight\Table\Model;
+
+use BiSight\Core\Model\Column;
 
 class Table
 {
@@ -50,7 +52,7 @@ class Table
     
     public function setColumn(Column $column)
     {
-        $this->columns[$column->getName()] = $column;
+        $this->columns[$column->getAlias()] = $column;
     }
     
     public function getColumns()
@@ -59,7 +61,7 @@ class Table
     }
     public function hasColumn($name)
     {
-        return isset($this->columns[$name]);
+        return @isset($this->columns[$name]);
     }
     
     public function getColumn($name)

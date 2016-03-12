@@ -1,0 +1,37 @@
+{% extends "@Theme/layout.html.twig" %}
+
+{% block content %}
+<form action="./{{ query.getName() }}" method="post">
+    <div style="float: right; margin-top: 20px;">
+        {#<a href="{{ path("table_description", { queryName: query.getName() })}}" class="btn btn-default"><i class="fa fa-info-circle"></i> Description</a>#}
+        {#
+        <a href="{{ path("query_download", { queryName: query.getName() })}}?format=csv" class="btn btn-default"><i class="fa fa-file-text-o"></i> CSV</a>
+        <a href="{{ path("query_download", { queryName: query.getName() })}}?format=html" class="btn btn-default"><i class="fa fa-file-code-o"></i> HTML</a>
+        <a href="{{ path("query_download", { queryName: query.getName() })}}?format=xlsx" class="btn btn-default"><i class="fa fa-file-excel-o"></i> Excel</a>
+        #}
+    </div>
+    <h1><i class="fa fa-filter"></i> {{ query.getTitle() }} <small>{{query.getName()}}</small></h1>
+    <p class="lead">{{query.getDescription() }}</p>
+    <p>Row count: {{ rowcount }}</p>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div style="background-color: #e0e0e0; padding: 5px">
+                {% for parameter in query.getParameters() %}
+                    <div class="form-group">
+                        <label>{{ parameter.getLabel() }} ({{ parameter.getName() }})<br /></label>
+                        {{ attribute(htmlwidgets, parameter.getName())|raw }}
+                        <span class="help-block">{{ parameter.getDescription() }}</span>
+                    </div>
+                {% endfor %}
+                <div class="buttonbox">
+                    <button type="submit" name="filter" class="btn btn-primary">Filter</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            {{ tablehtml|raw }}
+        </div>
+    </div>
+</form>
+{% endblock %}

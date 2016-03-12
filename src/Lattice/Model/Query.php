@@ -6,7 +6,7 @@ use BiSight\Core\Model\Column;
 
 class Query
 {
-    private $dataSet;
+    private $lattice;
     
     public function __construct(Lattice $lattice)
     {
