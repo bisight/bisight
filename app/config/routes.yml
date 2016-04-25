@@ -3,7 +3,7 @@ warehouse_index:
     defaults:  { _controller: BiSight\Portal\Controller\WarehouseController::indexAction }
 
 warehouse_view:
-    pattern: /{accountName}/{warehouseName}
+    pattern: /{accountName}/{warehouseName}/dashboard
     defaults:  { _controller: BiSight\Portal\Controller\WarehouseController::viewAction }
 
 table_index:

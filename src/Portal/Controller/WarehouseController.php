@@ -19,10 +19,20 @@ class WarehouseController
         $token = $app['security.token_storage']->getToken();
         $user = $token->getUser();
         $warehouseRepo = $app->getRepository('warehouse');
+        $permissionRepo = $app->getRepository('permission');
 
         $warehouses = array();
         foreach ($warehouseRepo->findAll() as $warehouse) {
-            $warehouses[] = $warehouse;
+            if (
+                $permissionRepo->findOneOrNullBy(
+                    array(
+                        'username' => $token->getUser()->getName(),
+                        'warehouse_id' => $warehouse->getId()
+                    )
+                )
+            ) {
+                $warehouses[] = $warehouse;
+            }
         }
         $data['warehouses'] = $warehouses;
 

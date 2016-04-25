@@ -5,8 +5,25 @@
         <column name="id" type="integer" length="64" />
         <column name="name" type="string" length="64" />
         <column name="account_name" type="string" length="64" />
-        <column name="connection" type="string" length="128" doc="db name or connection string"/>
         <column name="description" type="text" />
+        <column name="connection" type="string" length="128" doc="db name or connection string" notnull="false"/>
+        
+        <column name="created_at" type="integer" notnull="false" />
+        <column name="deleted_at" type="integer" notnull="false" />
+        
+        <index name="primary" primary="true" columns="id" />
+        <index name="unique_account_name_warehouse_name" unique="true" doc="unique account and warehouse" columns="name, account_name" />
+
+    </table>
+    
+   <table name="permission">
+        <column name="id" type="integer" autoincrement="true"  unsigned="true" />
+        <column name="username" type="string" length="64"/>
+        <column name="warehouse_id" type="integer" />
+
+        <index name="primary" primary="true" columns="id" />
+        <index name="username" primary="false" columns="username" />
+        <index name="unique_username_warehouse_id" unique="true" doc="unique username and warehouse id" columns="username, warehouse_id" />
     </table>
     
 </schema>

@@ -75,7 +75,6 @@ class TableController
         $data['table'] = $table;
         $data['tablehtml'] = $renderer->render($res, $offset, $limit);
         $data['rowcount'] =  $res->getRowCount();
-        $data['htmlwidgets'] = $htmlwidgets;
         
         return new Response($app['twig']->render(
             'tables/view.html.twig',

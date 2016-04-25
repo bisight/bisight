@@ -3,8 +3,10 @@
 namespace BiSight\Portal\Model;
 
 use Radvance\Model\BaseModel;
+use Radvance\Model\Space;
+use Radvance\Model\SpaceInterface;
 
-class Warehouse extends BaseModel
+class Warehouse extends Space implements SpaceInterface
 {
     protected $id;
     protected $name;
