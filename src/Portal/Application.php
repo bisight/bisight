@@ -61,7 +61,11 @@ class Application extends BaseWebApplication implements FrameworkApplicationInte
     public function getWarehouseDriver(Warehouse $warehouse)
     {
         $dm = new DatabaseManager();
-        $pdo = $dm->getPdo('bi_l_pommedejus');
+        $connection = $warehouse->getConnection();
+        if (!$connection) {
+            throw new RuntimeException("Connection not configured for " . $warehouse->getAccountName() . '/' . $warehouse->getName());
+        }
+        $pdo = $dm->getPdo($connection);
 
         $driver = new PdoDriver($pdo);
         return $driver;
