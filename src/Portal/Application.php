@@ -17,6 +17,7 @@ use LinkORB\Component\DatabaseManager\DatabaseManager;
 use BiSight\Core\Model\Parameter;
 use BiSight\Core\Model\Option;
 use BiSight\Table\Model\Table;
+use BiSight\Core\Model\Column;
 use BiSight\Table\QueryLoader\XmlQueryLoader;
 use BiSight\Core\Driver\PdoDriver;
 use BiSight\Core\TableLoader\XmlTableLoader;
@@ -91,6 +92,13 @@ class Application extends BaseWebApplication implements FrameworkApplicationInte
             $table = $loader->loadFile($tableName, $filename);
         } else {
             $table = new Table($tableName);
+        }
+        $driver = $this->getWarehouseDriver($warehouse);
+        $columns = $driver->getColumns($tableName);
+        foreach ($columns as $column) {
+            if (!$table->hasColumn($column->getName())) {
+                $table->setColumn($column);
+            }
         }
         return $table;
     }

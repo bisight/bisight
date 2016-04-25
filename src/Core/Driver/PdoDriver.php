@@ -37,6 +37,22 @@ class PdoDriver implements DriverInterface
         return $tables;
     }
     
+    public function getColumns($tableName)
+    {
+        $stmt = $this->pdo->prepare(
+            'DESCRIBE ' . $tableName
+        );
+        $res = $stmt->execute();
+
+        $columns = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            //print_r($row);
+            $column = new Column((string)$row['Field']);
+            $columns[] = $column;
+        }
+        return $columns;
+    }
+    
     public function getResultSetByTablename($tablename, Table $table)
     {
         $sql = "SELECT * FROM " . $tablename;
