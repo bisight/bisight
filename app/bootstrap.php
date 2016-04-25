@@ -25,7 +25,7 @@ $app->before(function (Request $request, Application $app) {
         $warehouse = $repo->findOneByAccountNameAndName($accountName, $warehouseName);
         $app['twig']->addGlobal('warehouse', $warehouse);
         $urlGeneratorContext->setParameter('warehouseName', $warehouse->getName());
-        
+        $urlGeneratorContext->setParameter('spaceName', $warehouse->getName());
         
         $token = $app['security.token_storage']->getToken();
         $user = $token->getUser();
