@@ -2,7 +2,7 @@
 <schema>
 
     <table name="warehouse">
-        <column name="id" type="integer" length="64" />
+        <column name="id" type="integer" autoincrement="true"  unsigned="true"/>
         <column name="name" type="string" length="64" />
         <column name="account_name" type="string" length="64" />
         <column name="description" type="text" />
