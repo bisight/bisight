@@ -4,6 +4,7 @@ use BiSight\Portal\Application;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 $app = new Application();
 
@@ -12,6 +13,16 @@ $app->before(function (Request $request, Application $app) {
     $urlGeneratorContext = $urlGenerator->getContext();
     if (isset($app['parameters']['baseurl'])) {
         $app['request_context']->setBaseUrl($app['parameters']['baseurl']);
+    }
+
+    $token = $app['security.token_storage']->getToken();
+    $user = $token->getUser();
+    if ($user == 'anon.') {
+        if ($request->get('_route') != 'login') {
+            return new RedirectResponse(
+                $app['url_generator']->generate('login')
+            );
+        }
     }
     
     $warehouseName = null;
@@ -30,12 +41,10 @@ $app->before(function (Request $request, Application $app) {
         $urlGeneratorContext->setParameter('warehouseName', $warehouse->getName());
         $urlGeneratorContext->setParameter('spaceName', $warehouse->getName());
         
-        $token = $app['security.token_storage']->getToken();
-        $user = $token->getUser();
 
-        //--CHECK WAREHOISE PERMISSION --//
+        //--CHECK WAREHOUSE PERMISSION --//
         if (!$oPermision = $app->getRepository('permission')->
-        findOneOrNullBy(array('username' => $token->getUser()->getName(), 'warehouse_id' => $warehouse->getId()))) {
+        findOneOrNullBy(array('username' => $user->getName(), 'warehouse_id' => $warehouse->getId()))) {
             return new Response($app['twig']->render('warehouse/access_denied.html.twig'), 403);
         }
     }
