@@ -10,6 +10,9 @@ $app = new Application();
 $app->before(function (Request $request, Application $app) {
     $urlGenerator = $app['url_generator'];
     $urlGeneratorContext = $urlGenerator->getContext();
+    if (isset($app['parameters']['baseurl'])) {
+        $app['request_context']->setBaseUrl($app['parameters']['baseurl']);
+    }
     
     $warehouseName = null;
     if ($request->attributes->has('warehouseName')) {
