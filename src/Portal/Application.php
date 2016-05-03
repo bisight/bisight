@@ -36,6 +36,9 @@ class Application extends BaseWebApplication implements FrameworkApplicationInte
 
     protected function configureService()
     {
+        if (isset($app['parameters']['baseurl'])) {
+            $app['request_context']->setBaseUrl($app['parameters']['baseurl']);
+        }
         parent::configureService();
         
         $loader = new XmlLatticeLoader();

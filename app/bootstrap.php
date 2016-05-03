@@ -11,9 +11,6 @@ $app = new Application();
 $app->before(function (Request $request, Application $app) {
     $urlGenerator = $app['url_generator'];
     $urlGeneratorContext = $urlGenerator->getContext();
-    if (isset($app['parameters']['baseurl'])) {
-        $app['request_context']->setBaseUrl($app['parameters']['baseurl']);
-    }
 
     $token = $app['security.token_storage']->getToken();
     $user = $token->getUser();
