@@ -6,6 +6,10 @@ warehouse_view:
     pattern: /{accountName}/{warehouseName}/dashboard
     defaults:  { _controller: BiSight\Portal\Controller\WarehouseController::viewAction }
 
+warehouse_admin:
+    pattern: /{accountName}/{warehouseName}/admin
+    defaults:  { _controller: BiSight\Portal\Controller\WarehouseController::adminAction }
+
 table_index:
     pattern: /{accountName}/{warehouseName}/tables
     defaults:  { _controller: BiSight\Portal\Controller\TableController::indexAction }

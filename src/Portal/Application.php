@@ -67,7 +67,7 @@ class Application extends BaseWebApplication implements FrameworkApplicationInte
         $dm = new DatabaseManager();
         $connection = $warehouse->getConnection();
         if (!$connection) {
-            throw new RuntimeException("Connection not configured for " . $warehouse->getAccountName() . '/' . $warehouse->getName());
+            return null;
         }
         $pdo = $dm->getPdo($connection);
 

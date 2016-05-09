@@ -34,6 +34,7 @@ $app->before(function (Request $request, Application $app) {
         
         $repo = $app->getRepository('warehouse');
         $warehouse = $repo->findOneByAccountNameAndName($accountName, $warehouseName);
+        $app['warehouse'] = $warehouse;
         $app['twig']->addGlobal('warehouse', $warehouse);
         $urlGeneratorContext->setParameter('warehouseName', $warehouse->getName());
         $urlGeneratorContext->setParameter('spaceName', $warehouse->getName());
