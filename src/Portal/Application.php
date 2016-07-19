@@ -48,6 +48,31 @@ class Application extends BaseWebApplication implements FrameworkApplicationInte
         );
         $this->schemaRepository = new StaticSchemaRepository();
     }
+    
+    protected function configureRepositories()
+    {
+        parent::configureRepositories();
+        $repositoryManager = $this['repository-manager'];
+        $repositoryManager->autoloadPdoRepositories(
+            __DIR__ . '/Repository',
+            'BiSight\Portal\Repository',
+            $this->pdo
+        );
+                
+        foreach ($repositoryManager->getRepositories() as $repository) {
+            if (is_a($repository, 'Radvance\\Repository\\PermissionRepositoryInterface')) {
+                $this->configurePermissionRepository($repository);
+            }
+            
+            if (is_a($repository, 'Radvance\\Repository\\SpaceRepositoryInterface')) {
+                $this->configureSpaceRepository($repository);
+            }
+            // TODO: support other types of repositories
+        }
+        //exit("LOL");
+
+    }
+
 
     private $schemaRepository;
     private $latticeRepository;

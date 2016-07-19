@@ -104,7 +104,12 @@ class LatticeController
 
         $res = $driver->latticeQuery($q);
         //print_r($res);
-        $excel = $this->getResultSetExcel($res, 'Lattice ' . $latticecode);
+        
+        $renderer = new ExcelResultSetRenderer();
+        $offset = 0;
+        $limit = 10000;
+        $excel = $renderer->render($res, $offset, $limit);
+        
         $format = $request->query->get('format');
         return ExcelUtils::getExcelResponse($excel, $latticecode, $format);
     }
